@@ -237,10 +237,13 @@ export class ScheduleService {
     };
 
     const rows = await this.prisma.scheduleRequest.groupBy({
-      by: ['requestDate', 'requestType'],
+      by: ['requestDate', 'requestType', 'employeeId'],
       where,
-      _count: { _all: true },
-      orderBy: [{ requestDate: 'asc' }, { requestType: 'asc' }],
+      orderBy: [
+        { requestDate: 'asc' },
+        { requestType: 'asc' },
+        { employeeId: 'asc' },
+      ],
     });
 
     const byDate = new Map<string, DailySummaryItem>();
@@ -253,8 +256,8 @@ export class ScheduleService {
         total: 0,
       };
 
-      current.counts[row.requestType] = row._count._all;
-      current.total += row._count._all;
+      current.counts[row.requestType] += 1;
+      current.total += 1;
       byDate.set(key, current);
     }
 
@@ -272,6 +275,7 @@ export class ScheduleService {
         requestDate: new Date(query.date),
         employee: this.buildEmployeeScopeFilter(user),
       },
+      distinct: ['employeeId'],
       select: {
         id: true,
         requestType: true,

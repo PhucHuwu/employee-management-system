@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { ListPagination } from '@/components/ui/list-pagination'
 import type { Project, ProjectStatus } from '@/lib/types'
 import { ProjectForm } from '@/components/projects/project-form'
 import { projectApi } from '@/lib/api/endpoints'
@@ -65,17 +66,31 @@ export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [page, setPage] = useState(1)
+  const [size] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
 
   const fetchProjects = useCallback(async () => {
     setIsLoading(true)
     try {
-      const data = await projectApi.getAll({ status: statusFilter === 'all' ? undefined : statusFilter, size: 100 })
+      const data = await projectApi.getAll({
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        page,
+        size,
+      })
       setProjects(data.items)
+      setTotal(data.total)
+      setTotalPages(data.totalPages)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Không tải được danh sách dự án')
     } finally {
       setIsLoading(false)
     }
+  }, [statusFilter, page, size])
+
+  useEffect(() => {
+    setPage(1)
   }, [statusFilter])
 
   useEffect(() => {
@@ -149,31 +164,34 @@ export default function ProjectsPage() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <Table>
-              <TableHeader><TableRow><TableHead>Mã</TableHead><TableHead>Tên dự án</TableHead><TableHead>Trạng thái</TableHead><TableHead>Thành viên</TableHead><TableHead>Ngày bắt đầu</TableHead><TableHead>Ngày kết thúc</TableHead><TableHead className="w-12" /></TableRow></TableHeader>
-              <TableBody>
-                {filteredProjects.map((project) => (
-                  <TableRow key={project.id}>
-                    <TableCell className="font-mono text-sm">{project.code}</TableCell>
-                    <TableCell><div><Link href={`/projects/${project.id}`} className="font-medium hover:underline">{project.name}</Link>{project.description && <p className="line-clamp-1 text-sm text-muted-foreground">{project.description}</p>}</div></TableCell>
-                    <TableCell><Badge variant={statusVariants[project.status]}>{statusLabels[project.status]}</Badge></TableCell>
-                    <TableCell>{project._count?.members || 0}</TableCell>
-                    <TableCell>{new Date(project.startDate).toLocaleDateString('vi-VN')}</TableCell>
-                    <TableCell>{project.endDate ? new Date(project.endDate).toLocaleDateString('vi-VN') : '-'}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="size-4" /><span className="sr-only">Menu</span></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild><Link href={`/projects/${project.id}`}><Eye className="mr-2 size-4" />Xem chi tiết</Link></DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => { setEditingProject(project); setIsFormOpen(true) }}><Pencil className="mr-2 size-4" />Chỉnh sửa</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => { setSelectedProject(project); setDeleteDialogOpen(true) }}><Trash2 className="mr-2 size-4" />Xóa</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              <Table>
+                <TableHeader><TableRow><TableHead>Mã</TableHead><TableHead>Tên dự án</TableHead><TableHead>Trạng thái</TableHead><TableHead>Thành viên</TableHead><TableHead>Ngày bắt đầu</TableHead><TableHead>Ngày kết thúc</TableHead><TableHead className="w-12" /></TableRow></TableHeader>
+                <TableBody>
+                  {filteredProjects.map((project) => (
+                    <TableRow key={project.id}>
+                      <TableCell className="font-mono text-sm">{project.code}</TableCell>
+                      <TableCell><div><Link href={`/projects/${project.id}`} className="font-medium hover:underline">{project.name}</Link>{project.description && <p className="line-clamp-1 text-sm text-muted-foreground">{project.description}</p>}</div></TableCell>
+                      <TableCell><Badge variant={statusVariants[project.status]}>{statusLabels[project.status]}</Badge></TableCell>
+                      <TableCell>{project._count?.members || 0}</TableCell>
+                      <TableCell>{new Date(project.startDate).toLocaleDateString('vi-VN')}</TableCell>
+                      <TableCell>{project.endDate ? new Date(project.endDate).toLocaleDateString('vi-VN') : '-'}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="size-4" /><span className="sr-only">Menu</span></Button></DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild><Link href={`/projects/${project.id}`}><Eye className="mr-2 size-4" />Xem chi tiết</Link></DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setEditingProject(project); setIsFormOpen(true) }}><Pencil className="mr-2 size-4" />Chỉnh sửa</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => { setSelectedProject(project); setDeleteDialogOpen(true) }}><Trash2 className="mr-2 size-4" />Xóa</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <ListPagination page={page} totalPages={totalPages} total={total} size={size} onPageChange={setPage} />
+            </>
           )}
         </CardContent>
       </Card>

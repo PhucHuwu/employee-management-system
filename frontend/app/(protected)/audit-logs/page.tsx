@@ -24,25 +24,69 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { ListPagination } from '@/components/ui/list-pagination'
 import { useAuth } from '@/lib/auth-context'
 import { auditLogApi } from '@/lib/api/endpoints'
 import type { AuditLog } from '@/lib/types'
 
 const actionLabels: Record<string, string> = {
-  CREATE: 'Tạo mới',
-  UPDATE: 'Cập nhật',
-  DELETE: 'Xóa',
-  APPROVE: 'Duyệt',
-  REJECT: 'Từ chối',
+  EMPLOYEE_CREATED: 'Tạo nhân viên',
+  EMPLOYEE_UPDATED: 'Cập nhật nhân viên',
+  EMPLOYEE_SOFT_DELETED: 'Ngừng sử dụng nhân viên',
+  EMPLOYEE_PROMOTED: 'Thăng chức nhân viên',
+  POSITION_UPDATED: 'Cập nhật vị trí',
+  POSITION_DELETED: 'Xóa vị trí',
+  EMPLOYEE_POSITION_UPDATED: 'Cập nhật vị trí nhân viên',
+  EMPLOYEE_POSITION_BULK_UPDATED: 'Cập nhật vị trí hàng loạt',
+  PROJECT_UPDATED: 'Cập nhật dự án',
+  PROJECT_DELETED: 'Xóa dự án',
+  PROJECT_REVENUE_CREATED: 'Thêm doanh thu dự án',
+  SCHEDULE_REQUEST_APPROVED: 'Duyệt yêu cầu lịch',
+  SCHEDULE_REQUEST_REJECTED: 'Từ chối yêu cầu lịch',
 }
 
 const actionVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  CREATE: 'default',
-  UPDATE: 'secondary',
-  DELETE: 'destructive',
-  APPROVE: 'default',
-  REJECT: 'destructive',
+  EMPLOYEE_CREATED: 'default',
+  EMPLOYEE_UPDATED: 'secondary',
+  EMPLOYEE_SOFT_DELETED: 'destructive',
+  EMPLOYEE_PROMOTED: 'default',
+  POSITION_UPDATED: 'secondary',
+  POSITION_DELETED: 'destructive',
+  EMPLOYEE_POSITION_UPDATED: 'secondary',
+  EMPLOYEE_POSITION_BULK_UPDATED: 'secondary',
+  PROJECT_UPDATED: 'secondary',
+  PROJECT_DELETED: 'destructive',
+  PROJECT_REVENUE_CREATED: 'default',
+  SCHEDULE_REQUEST_APPROVED: 'default',
+  SCHEDULE_REQUEST_REJECTED: 'destructive',
 }
+
+const actionOptions = [
+  { value: 'all', label: 'Tất cả hành động' },
+  { value: 'EMPLOYEE_CREATED', label: 'Tạo nhân viên' },
+  { value: 'EMPLOYEE_UPDATED', label: 'Cập nhật nhân viên' },
+  { value: 'EMPLOYEE_SOFT_DELETED', label: 'Ngừng sử dụng nhân viên' },
+  { value: 'EMPLOYEE_PROMOTED', label: 'Thăng chức nhân viên' },
+  { value: 'PROJECT_UPDATED', label: 'Cập nhật dự án' },
+  { value: 'PROJECT_DELETED', label: 'Xóa dự án' },
+  { value: 'PROJECT_REVENUE_CREATED', label: 'Thêm doanh thu dự án' },
+  { value: 'SCHEDULE_REQUEST_APPROVED', label: 'Duyệt yêu cầu lịch' },
+  { value: 'SCHEDULE_REQUEST_REJECTED', label: 'Từ chối yêu cầu lịch' },
+  { value: 'POSITION_UPDATED', label: 'Cập nhật vị trí' },
+  { value: 'POSITION_DELETED', label: 'Xóa vị trí' },
+  { value: 'EMPLOYEE_POSITION_UPDATED', label: 'Cập nhật vị trí nhân viên' },
+  { value: 'EMPLOYEE_POSITION_BULK_UPDATED', label: 'Cập nhật vị trí hàng loạt' },
+]
+
+const entityTypeOptions = [
+  { value: 'all', label: 'Tất cả đối tượng' },
+  { value: 'EMPLOYEE', label: 'Nhân viên' },
+  { value: 'POSITION', label: 'Vị trí' },
+  { value: 'JOB_TITLE', label: 'Chức danh' },
+  { value: 'PROJECT', label: 'Dự án' },
+  { value: 'SCHEDULE_REQUEST', label: 'Yêu cầu lịch' },
+  { value: 'PROJECT_REVENUE', label: 'Doanh thu dự án' },
+]
 
 function TableSkeleton() {
   return (
@@ -68,6 +112,10 @@ export default function AuditLogsPage() {
   const [entityTypeFilter, setEntityTypeFilter] = useState<string>('all')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [page, setPage] = useState(1)
+  const [size] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
 
   const isAdmin = hasRole('Admin')
 
@@ -79,15 +127,18 @@ export default function AuditLogsPage() {
         entityType: entityTypeFilter === 'all' ? undefined : entityTypeFilter,
         from: dateFrom || undefined,
         to: dateTo || undefined,
-        size: 100,
+        page,
+        size,
       })
       setAuditLogs(data.items)
+      setTotal(data.total)
+      setTotalPages(data.totalPages)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Không tải được audit logs')
     } finally {
       setIsLoading(false)
     }
-  }, [actionFilter, entityTypeFilter, dateFrom, dateTo])
+  }, [actionFilter, entityTypeFilter, dateFrom, dateTo, page, size])
 
   useEffect(() => {
     if (isAdmin) {
@@ -110,7 +161,12 @@ export default function AuditLogsPage() {
     setEntityTypeFilter('all')
     setDateFrom('')
     setDateTo('')
+    setPage(1)
   }
+
+  useEffect(() => {
+    setPage(1)
+  }, [actionFilter, entityTypeFilter, dateFrom, dateTo])
 
   if (!isAdmin) {
     return (
@@ -147,23 +203,18 @@ export default function AuditLogsPage() {
             <Select value={actionFilter} onValueChange={setActionFilter}>
               <SelectTrigger><SelectValue placeholder="Hành động" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả hành động</SelectItem>
-                <SelectItem value="CREATE">Tạo mới</SelectItem>
-                <SelectItem value="UPDATE">Cập nhật</SelectItem>
-                <SelectItem value="DELETE">Xóa</SelectItem>
-                <SelectItem value="APPROVE">Duyệt</SelectItem>
-                <SelectItem value="REJECT">Từ chối</SelectItem>
+                {actionOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
             <Select value={entityTypeFilter} onValueChange={setEntityTypeFilter}>
               <SelectTrigger><SelectValue placeholder="Đối tượng" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả đối tượng</SelectItem>
-                <SelectItem value="EMPLOYEE">Nhân viên</SelectItem>
-                <SelectItem value="PROJECT">Dự án</SelectItem>
-                <SelectItem value="SCHEDULE_REQUEST">Yêu cầu lịch</SelectItem>
-                <SelectItem value="PROJECT_REVENUE">Doanh thu dự án</SelectItem>
+                {entityTypeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -193,28 +244,31 @@ export default function AuditLogsPage() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Thời gian</TableHead>
-                  <TableHead>Actor</TableHead>
-                  <TableHead>Hành động</TableHead>
-                  <TableHead>Đối tượng</TableHead>
-                  <TableHead>ID</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="whitespace-nowrap">{new Date(log.createdAt).toLocaleString('vi-VN')}</TableCell>
-                    <TableCell className="font-medium">{log.actorRole ? `${log.actorRole} (${log.actorId || '-'})` : (log.actorId || '-')}</TableCell>
-                    <TableCell><Badge variant={actionVariants[log.action] || 'outline'}>{actionLabels[log.action] || log.action}</Badge></TableCell>
-                    <TableCell>{log.entityType}</TableCell>
-                    <TableCell className="font-mono text-sm">{log.entityId}</TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Thời gian</TableHead>
+                    <TableHead>Actor</TableHead>
+                    <TableHead>Hành động</TableHead>
+                    <TableHead>Đối tượng</TableHead>
+                    <TableHead>ID</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredLogs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell className="whitespace-nowrap">{new Date(log.createdAt).toLocaleString('vi-VN')}</TableCell>
+                      <TableCell className="font-medium">{log.actorRole ? `${log.actorRole} (${log.actorId || '-'})` : (log.actorId || '-')}</TableCell>
+                      <TableCell><Badge variant={actionVariants[log.action] || 'outline'}>{actionLabels[log.action] || log.action}</Badge></TableCell>
+                      <TableCell>{log.entityType}</TableCell>
+                      <TableCell className="font-mono text-sm">{log.entityId}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <ListPagination page={page} totalPages={totalPages} total={total} size={size} onPageChange={setPage} />
+            </>
           )}
         </CardContent>
       </Card>

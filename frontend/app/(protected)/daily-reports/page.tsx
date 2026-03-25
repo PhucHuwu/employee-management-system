@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { ListPagination } from '@/components/ui/list-pagination'
 import type { DailyReport, Employee, Project } from '@/lib/types'
 import { dailyReportApi, employeeApi, projectApi } from '@/lib/api/endpoints'
 
@@ -38,6 +39,10 @@ export default function DailyReportsPage() {
   const [selectedProject, setSelectedProject] = useState<string>('all')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [page, setPage] = useState(1)
+  const [size] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -48,13 +53,16 @@ export default function DailyReportsPage() {
           projectId: selectedProject === 'all' ? undefined : selectedProject,
           from: dateFrom || undefined,
           to: dateTo || undefined,
-          size: 100,
+          page,
+          size,
         }),
         employeeApi.getAll({ size: 100 }),
         projectApi.getAll({ size: 100 }),
       ])
 
       setReports(reportsRes.items)
+      setTotal(reportsRes.total)
+      setTotalPages(reportsRes.totalPages)
       setEmployees(employeesRes.items)
       setProjects(projectsRes.items)
     } catch (error) {
@@ -62,11 +70,15 @@ export default function DailyReportsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [selectedEmployee, selectedProject, dateFrom, dateTo])
+  }, [selectedEmployee, selectedProject, dateFrom, dateTo, page, size])
 
   useEffect(() => {
     void fetchData()
   }, [fetchData])
+
+  useEffect(() => {
+    setPage(1)
+  }, [selectedEmployee, selectedProject, dateFrom, dateTo])
 
   const totalReports = reports.length
 
@@ -137,20 +149,23 @@ export default function DailyReportsPage() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <Table>
-              <TableHeader><TableRow><TableHead>Ngày</TableHead><TableHead>Nhân viên</TableHead><TableHead>Dự án</TableHead><TableHead>Tác vụ</TableHead><TableHead className="max-w-md">Nội dung công việc</TableHead></TableRow></TableHeader>
-              <TableBody>
-                {rows.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell>{new Date(report.reportDate).toLocaleDateString('vi-VN')}</TableCell>
-                    <TableCell className="font-medium">{report.employee?.fullName || report.employeeId}</TableCell>
-                    <TableCell><Badge variant="outline">{report.project?.name || '-'}</Badge></TableCell>
-                    <TableCell>{report.task}</TableCell>
-                    <TableCell className="max-w-md"><p className="line-clamp-2">{report.workContent}</p></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              <Table>
+                <TableHeader><TableRow><TableHead>Ngày</TableHead><TableHead>Nhân viên</TableHead><TableHead>Dự án</TableHead><TableHead>Tác vụ</TableHead><TableHead className="max-w-md">Nội dung công việc</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {rows.map((report) => (
+                    <TableRow key={report.id}>
+                      <TableCell>{new Date(report.reportDate).toLocaleDateString('vi-VN')}</TableCell>
+                      <TableCell className="font-medium">{report.employee?.fullName || report.employeeId}</TableCell>
+                      <TableCell><Badge variant="outline">{report.project?.name || '-'}</Badge></TableCell>
+                      <TableCell>{report.task}</TableCell>
+                      <TableCell className="max-w-md"><p className="line-clamp-2">{report.workContent}</p></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <ListPagination page={page} totalPages={totalPages} total={total} size={size} onPageChange={setPage} />
+            </>
           )}
         </CardContent>
       </Card>

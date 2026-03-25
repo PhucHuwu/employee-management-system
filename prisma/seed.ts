@@ -12,56 +12,57 @@ import {
 const prisma = new PrismaClient()
 
 const makeId = (prefix: string, index: number): string =>
-  `${prefix}-0000-0000-0000-${index.toString().padStart(12, '0')}`
+  `${prefix}-0000-4000-8000-${index.toString().padStart(12, '0')}`
 
 const ids = {
   users: {
-    admin: '10000000-0000-0000-0000-000000000001',
-    managerEngineering: '10000000-0000-0000-0000-000000000002',
-    managerBusiness: '10000000-0000-0000-0000-000000000003',
+    admin: '10000000-0000-4000-8000-000000000001',
+    managerEngineering: '10000000-0000-4000-8000-000000000002',
+    managerBusiness: '10000000-0000-4000-8000-000000000003',
   },
   departments: {
-    engineering: '20000000-0000-0000-0000-000000000001',
-    business: '20000000-0000-0000-0000-000000000002',
-    hr: '20000000-0000-0000-0000-000000000003',
-    finance: '20000000-0000-0000-0000-000000000004',
+    engineering: '20000000-0000-4000-8000-000000000001',
+    business: '20000000-0000-4000-8000-000000000002',
+    hr: '20000000-0000-4000-8000-000000000003',
+    finance: '20000000-0000-4000-8000-000000000004',
   },
   positions: {
-    backend: '30000000-0000-0000-0000-000000000001',
-    frontend: '30000000-0000-0000-0000-000000000002',
-    qa: '30000000-0000-0000-0000-000000000003',
-    pm: '30000000-0000-0000-0000-000000000004',
-    sales: '30000000-0000-0000-0000-000000000005',
-    hrbp: '30000000-0000-0000-0000-000000000006',
+    backend: '30000000-0000-4000-8000-000000000001',
+    frontend: '30000000-0000-4000-8000-000000000002',
+    qa: '30000000-0000-4000-8000-000000000003',
+    pm: '30000000-0000-4000-8000-000000000004',
+    sales: '30000000-0000-4000-8000-000000000005',
+    hrbp: '30000000-0000-4000-8000-000000000006',
   },
   jobTitles: {
-    junior: '40000000-0000-0000-0000-000000000001',
-    middle: '40000000-0000-0000-0000-000000000002',
-    senior: '40000000-0000-0000-0000-000000000003',
-    lead: '40000000-0000-0000-0000-000000000004',
-    manager: '40000000-0000-0000-0000-000000000005',
+    junior: '40000000-0000-4000-8000-000000000001',
+    middle: '40000000-0000-4000-8000-000000000002',
+    senior: '40000000-0000-4000-8000-000000000003',
+    lead: '40000000-0000-4000-8000-000000000004',
+    manager: '40000000-0000-4000-8000-000000000005',
   },
   employees: {
-    nguyenAn: '50000000-0000-0000-0000-000000000001',
-    tranBinh: '50000000-0000-0000-0000-000000000002',
-    leCuong: '50000000-0000-0000-0000-000000000003',
-    phamDung: '50000000-0000-0000-0000-000000000004',
-    hoangEm: '50000000-0000-0000-0000-000000000005',
-    ngoPhuong: '50000000-0000-0000-0000-000000000006',
+    nguyenAn: '50000000-0000-4000-8000-000000000001',
+    tranBinh: '50000000-0000-4000-8000-000000000002',
+    leCuong: '50000000-0000-4000-8000-000000000003',
+    phamDung: '50000000-0000-4000-8000-000000000004',
+    hoangEm: '50000000-0000-4000-8000-000000000005',
+    ngoPhuong: '50000000-0000-4000-8000-000000000006',
   },
   projects: {
-    emsCore: '60000000-0000-0000-0000-000000000001',
-    mobileApp: '60000000-0000-0000-0000-000000000002',
-    dataHub: '60000000-0000-0000-0000-000000000003',
+    emsCore: '60000000-0000-4000-8000-000000000001',
+    mobileApp: '60000000-0000-4000-8000-000000000002',
+    dataHub: '60000000-0000-4000-8000-000000000003',
   },
   customers: {
-    alpha: '70000000-0000-0000-0000-000000000001',
-    beta: '70000000-0000-0000-0000-000000000002',
-    gamma: '70000000-0000-0000-0000-000000000003',
+    alpha: '70000000-0000-4000-8000-000000000001',
+    beta: '70000000-0000-4000-8000-000000000002',
+    gamma: '70000000-0000-4000-8000-000000000003',
   },
 } as const
 
 async function main(): Promise<void> {
+  await clearAllData()
   await seedDepartments()
   await seedPositions()
   await seedJobTitles()
@@ -78,6 +79,24 @@ async function main(): Promise<void> {
   await seedProjectDocuments()
   await seedExtendedData()
   await seedAuditLogs()
+}
+
+async function clearAllData(): Promise<void> {
+  await prisma.auditLog.deleteMany()
+  await prisma.projectDocument.deleteMany()
+  await prisma.projectRevenue.deleteMany()
+  await prisma.dailyReport.deleteMany()
+  await prisma.scheduleRequest.deleteMany()
+  await prisma.employeeTitleHistory.deleteMany()
+  await prisma.projectCustomer.deleteMany()
+  await prisma.projectMember.deleteMany()
+  await prisma.customer.deleteMany()
+  await prisma.project.deleteMany()
+  await prisma.employee.deleteMany()
+  await prisma.userAccount.deleteMany()
+  await prisma.jobTitle.deleteMany()
+  await prisma.position.deleteMany()
+  await prisma.department.deleteMany()
 }
 
 async function seedExtendedData(): Promise<void> {

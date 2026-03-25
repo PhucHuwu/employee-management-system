@@ -47,6 +47,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
+import { ListPagination } from '@/components/ui/list-pagination'
 import type { Employee, EmployeeStatus, FixedSchedule } from '@/lib/types'
 import { EmployeeForm } from '@/components/employees/employee-form'
 import { employeeApi } from '@/lib/api/endpoints'
@@ -88,6 +89,10 @@ export default function EmployeesPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
+  const [page, setPage] = useState(1)
+  const [size] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
 
   const fetchEmployees = useCallback(async () => {
     setIsLoading(true)
@@ -95,20 +100,28 @@ export default function EmployeesPage() {
       const data = await employeeApi.getAll({
         keyword: searchKeyword || undefined,
         status: statusFilter === 'all' ? undefined : statusFilter,
+        page,
+        size,
       })
       setEmployees(data.items)
+      setTotal(data.total)
+      setTotalPages(data.totalPages)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Không tải được danh sách nhân viên')
     } finally {
       setIsLoading(false)
     }
-  }, [searchKeyword, statusFilter])
+  }, [searchKeyword, statusFilter, page, size])
 
   useEffect(() => {
     void fetchEmployees()
   }, [fetchEmployees])
 
   const filteredEmployees = useMemo(() => employees, [employees])
+
+  useEffect(() => {
+    setPage(1)
+  }, [searchKeyword, statusFilter])
 
   const handleDelete = async () => {
     if (!selectedEmployee) return
@@ -209,63 +222,66 @@ export default function EmployeesPage() {
               )}
             </Empty>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nhân viên</TableHead>
-                  <TableHead>Phòng ban</TableHead>
-                  <TableHead>Vị trí</TableHead>
-                  <TableHead>Ca làm việc</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredEmployees.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell>
-                      <div className="font-medium">{employee.fullName}</div>
-                    </TableCell>
-                    <TableCell>{employee.department?.name || '-'}</TableCell>
-                    <TableCell>{employee.position?.name || '-'}</TableCell>
-                    <TableCell>{scheduleLabels[employee.fixedSchedule]}</TableCell>
-                    <TableCell>
-                      <Badge variant={employee.employmentStatus === 'ACTIVE' ? 'default' : 'secondary'}>
-                        {statusLabels[employee.employmentStatus]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="size-4" />
-                            <span className="sr-only">Menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/employees/${employee.id}`}>
-                              <Eye className="mr-2 size-4" />
-                              Xem chi tiết
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleOpenEdit(employee)}>
-                            <Pencil className="mr-2 size-4" />
-                            Chỉnh sửa
-                          </DropdownMenuItem>
-                          {employee.employmentStatus === 'ACTIVE' && (
-                            <DropdownMenuItem onClick={() => handleOpenDelete(employee)} className="text-destructive">
-                              <UserX className="mr-2 size-4" />
-                              Ngừng sử dụng
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nhân viên</TableHead>
+                    <TableHead>Phòng ban</TableHead>
+                    <TableHead>Vị trí</TableHead>
+                    <TableHead>Ca làm việc</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredEmployees.map((employee) => (
+                    <TableRow key={employee.id}>
+                      <TableCell>
+                        <div className="font-medium">{employee.fullName}</div>
+                      </TableCell>
+                      <TableCell>{employee.department?.name || '-'}</TableCell>
+                      <TableCell>{employee.position?.name || '-'}</TableCell>
+                      <TableCell>{scheduleLabels[employee.fixedSchedule]}</TableCell>
+                      <TableCell>
+                        <Badge variant={employee.employmentStatus === 'ACTIVE' ? 'default' : 'secondary'}>
+                          {statusLabels[employee.employmentStatus]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="size-4" />
+                              <span className="sr-only">Menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/employees/${employee.id}`}>
+                                <Eye className="mr-2 size-4" />
+                                Xem chi tiết
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenEdit(employee)}>
+                              <Pencil className="mr-2 size-4" />
+                              Chỉnh sửa
+                            </DropdownMenuItem>
+                            {employee.employmentStatus === 'ACTIVE' && (
+                              <DropdownMenuItem onClick={() => handleOpenDelete(employee)} className="text-destructive">
+                                <UserX className="mr-2 size-4" />
+                                Ngừng sử dụng
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <ListPagination page={page} totalPages={totalPages} total={total} size={size} onPageChange={setPage} />
+            </>
           )}
         </CardContent>
       </Card>

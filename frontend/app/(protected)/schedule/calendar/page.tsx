@@ -60,6 +60,7 @@ export default function ScheduleCalendarPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedType, setSelectedType] = useState<ScheduleRequestType | null>(null)
+  const [selectedTypeLabel, setSelectedTypeLabel] = useState('')
   const [drilldownData, setDrilldownData] = useState<DailyDrilldown[]>([])
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
@@ -99,6 +100,7 @@ export default function ScheduleCalendarPage() {
   const handleChipClick = async (date: string, type: ScheduleRequestType) => {
     setSelectedDate(date)
     setSelectedType(type)
+    setSelectedTypeLabel(typeLabels[type])
     setIsSheetOpen(true)
     try {
       const data = await scheduleApi.getDailyDrilldown({ date, type })
@@ -107,6 +109,32 @@ export default function ScheduleCalendarPage() {
       toast.error(error instanceof Error ? error.message : 'Không tải được chi tiết nhân viên')
       setDrilldownData([])
     }
+  }
+
+  const handleHalfDayChipClick = async (date: string, data: DailySummary) => {
+    const hasOffAm = getCount(data, 'OFF_AM') > 0
+    const hasOffPm = getCount(data, 'OFF_PM') > 0
+
+    if (hasOffAm && hasOffPm) {
+      setSelectedDate(date)
+      setSelectedType(null)
+      setSelectedTypeLabel('Nghỉ nửa ngày (sáng + chiều)')
+      setIsSheetOpen(true)
+
+      try {
+        const [offAm, offPm] = await Promise.all([
+          scheduleApi.getDailyDrilldown({ date, type: 'OFF_AM' }),
+          scheduleApi.getDailyDrilldown({ date, type: 'OFF_PM' }),
+        ])
+        setDrilldownData([...offAm, ...offPm])
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Không tải được chi tiết nhân viên')
+        setDrilldownData([])
+      }
+      return
+    }
+
+    await handleChipClick(date, hasOffAm ? 'OFF_AM' : 'OFF_PM')
   }
 
   const days = useMemo(() => {
@@ -150,7 +178,7 @@ export default function ScheduleCalendarPage() {
               </Badge>
             )}
             {(getCount(data, 'OFF_AM') + getCount(data, 'OFF_PM')) > 0 && (
-              <Badge variant="outline" className="cursor-pointer text-xs" onClick={() => handleChipClick(dateStr, getCount(data, 'OFF_AM') > 0 ? 'OFF_AM' : 'OFF_PM')}>
+              <Badge variant="outline" className="cursor-pointer text-xs" onClick={() => handleHalfDayChipClick(dateStr, data)}>
                 Nghỉ nửa: {getCount(data, 'OFF_AM') + getCount(data, 'OFF_PM')}
               </Badge>
             )}
@@ -206,17 +234,18 @@ export default function ScheduleCalendarPage() {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2"><Users className="size-5" />Chi tiết nhân viên</SheetTitle>
             <SheetDescription>
-              {selectedDate && selectedType ? `${new Date(selectedDate).toLocaleDateString('vi-VN')} - ${typeLabels[selectedType]}` : ''}
+              {selectedDate ? `${new Date(selectedDate).toLocaleDateString('vi-VN')} - ${selectedTypeLabel}` : ''}
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             {drilldownData.length > 0 ? (
               <Table>
-                <TableHeader><TableRow><TableHead>Nhân viên</TableHead><TableHead>Mã phòng ban</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow><TableHead>Nhân viên</TableHead><TableHead>Loại</TableHead><TableHead>Mã phòng ban</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {drilldownData.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.employee.fullName}</TableCell>
+                      <TableCell>{typeLabels[item.requestType]}</TableCell>
                       <TableCell>{item.employee.departmentId || '-'}</TableCell>
                     </TableRow>
                   ))}
