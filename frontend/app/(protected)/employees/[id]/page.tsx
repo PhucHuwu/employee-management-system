@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Pencil, Award, MapPin, Calendar, Briefcase, Users } from 'lucide-react'
+import { ArrowLeft, Pencil, Award, MapPin, Calendar, Briefcase, Users, Phone, Mail, Globe } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,10 +14,12 @@ import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { EmployeeDetail, FixedSchedule, EmployeeStatus } from '@/lib/types'
 import { EmployeeForm } from '@/components/employees/employee-form'
 import { PromotionForm } from '@/components/employees/promotion-form'
 import { employeeApi } from '@/lib/api/endpoints'
+import { getEmployeeProfileMock } from '@/lib/employee-profile-mock'
 
 const statusLabels: Record<EmployeeStatus, string> = {
   ACTIVE: 'Đang hoạt động',
@@ -86,11 +88,21 @@ export default function EmployeeDetailPage() {
     )
   }
 
+  const profile = getEmployeeProfileMock({
+    id: employee.id,
+    fullName: employee.fullName,
+    address: employee.address,
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.back()}><ArrowLeft className="size-4" /></Button>
+          <Avatar className="size-10">
+            <AvatarImage src={profile.avatarUrl} />
+            <AvatarFallback>{profile.initials}</AvatarFallback>
+          </Avatar>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{employee.fullName}</h1>
             <p className="text-muted-foreground">{employee.department?.name || '-'}</p>
@@ -108,7 +120,12 @@ export default function EmployeeDetailPage() {
           <CardContent className="space-y-4">
             <Badge variant={employee.employmentStatus === 'ACTIVE' ? 'default' : 'secondary'}>{statusLabels[employee.employmentStatus]}</Badge>
             <Separator />
-            <div className="text-sm"><MapPin className="mr-2 inline size-4 text-muted-foreground" />{employee.address}</div>
+            <div className="text-sm"><MapPin className="mr-2 inline size-4 text-muted-foreground" />Địa chỉ: {employee.address}</div>
+            <div className="text-sm"><MapPin className="mr-2 inline size-4 text-muted-foreground" />Nơi thường trú: {profile.permanentResidence}</div>
+            <div className="text-sm"><Phone className="mr-2 inline size-4 text-muted-foreground" />{profile.phone}</div>
+            <div className="text-sm"><Mail className="mr-2 inline size-4 text-muted-foreground" />{profile.email}</div>
+            <div className="text-sm"><Globe className="mr-2 inline size-4 text-muted-foreground" />Quốc tịch: {profile.nationality}</div>
+            <div className="text-sm"><MapPin className="mr-2 inline size-4 text-muted-foreground" />Nơi sinh: {profile.placeOfBirth}</div>
             <div className="text-sm"><Calendar className="mr-2 inline size-4 text-muted-foreground" />{new Date(employee.dob).toLocaleDateString('vi-VN')}</div>
             <div className="text-sm"><Briefcase className="mr-2 inline size-4 text-muted-foreground" />{employee.position?.name || '-'}</div>
             <div className="text-sm"><Award className="mr-2 inline size-4 text-muted-foreground" />{latestTitle || 'Chưa có'}</div>

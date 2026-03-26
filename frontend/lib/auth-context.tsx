@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { User, AuthResponse, Role } from '@/lib/types'
 import apiClient from '@/lib/api/client'
+import { getUserAvatarUrlMock } from '@/lib/user-avatar-mock'
 
 type BackendRole = 'ADMIN' | 'MANAGER'
 
@@ -24,6 +25,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const ensureAvatarUrl = (user: User): User => {
+  if (user.avatarUrl) return user
+  return {
+    ...user,
+    avatarUrl: getUserAvatarUrlMock({
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName ?? null,
+    }),
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -37,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const parsedUser = JSON.parse(storedUser) as User
           parsedUser.role = toUiRole(parsedUser.role as Role | BackendRole)
-          setUser(parsedUser)
+          setUser(ensureAvatarUrl(parsedUser))
           apiClient.setAccessToken(accessToken)
         } catch {
           localStorage.removeItem('user')
@@ -60,16 +73,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: toUiRole(response.user.role as Role | BackendRole),
       fullName: response.user.fullName || response.user.email,
     }
+    const userWithAvatar = ensureAvatarUrl(normalizedUser)
 
     localStorage.setItem('accessToken', response.accessToken)
-    localStorage.setItem('user', JSON.stringify(normalizedUser))
+    localStorage.setItem('user', JSON.stringify(userWithAvatar))
     
     if (response.refreshToken) {
       localStorage.setItem('refreshToken', response.refreshToken)
     }
 
     apiClient.setAccessToken(response.accessToken)
-    setUser(normalizedUser)
+    setUser(userWithAvatar)
   }, [])
 
   const logout = useCallback(() => {

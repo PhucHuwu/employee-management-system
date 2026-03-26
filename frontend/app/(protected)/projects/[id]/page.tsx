@@ -28,6 +28,7 @@ import type { ProjectDetail, ProjectStatus, ProjectMember, ProjectDocument, Proj
 import { ProjectForm } from '@/components/projects/project-form'
 import { AddMemberForm } from '@/components/projects/add-member-form'
 import { AddRevenueForm } from '@/components/projects/add-revenue-form'
+import { ProjectDailyReportsCalendar } from '@/components/projects/project-daily-reports-calendar'
 import { projectApi } from '@/lib/api/endpoints'
 
 const statusLabels: Record<ProjectStatus, string> = {
@@ -200,7 +201,7 @@ export default function ProjectDetailPage() {
 
       <Card>
         <Tabs defaultValue="members">
-          <CardHeader><TabsList><TabsTrigger value="members">Thành viên</TabsTrigger><TabsTrigger value="customers">Khách hàng</TabsTrigger><TabsTrigger value="documents">Tài liệu</TabsTrigger><TabsTrigger value="revenues">Doanh thu</TabsTrigger></TabsList></CardHeader>
+          <CardHeader><TabsList><TabsTrigger value="members">Thành viên</TabsTrigger><TabsTrigger value="customers">Khách hàng</TabsTrigger><TabsTrigger value="documents">Tài liệu</TabsTrigger><TabsTrigger value="revenues">Doanh thu</TabsTrigger><TabsTrigger value="dailyReports">Daily report</TabsTrigger></TabsList></CardHeader>
           <CardContent>
             <TabsContent value="members" className="mt-0">
               <div className="mb-4 flex justify-end"><Button size="sm" onClick={() => setIsAddMemberOpen(true)}><Plus className="mr-2 size-4" />Thêm thành viên</Button></div>
@@ -231,6 +232,10 @@ export default function ProjectDetailPage() {
               {revenueRows.length > 0 ? (
                 <Table><TableHeader><TableRow><TableHead>Kỳ</TableHead><TableHead>Loại</TableHead><TableHead>Số tiền</TableHead><TableHead>Ghi chú</TableHead><TableHead className="w-12" /></TableRow></TableHeader><TableBody>{revenueRows.map((revenue) => (<TableRow key={revenue.id}><TableCell className="font-medium">{`${revenue.periodMonth}/${revenue.periodYear}`}</TableCell><TableCell><Badge variant={revenue.revenueType === 'FORECAST' ? 'secondary' : 'default'}>{revenue.revenueType === 'FORECAST' ? 'Dự kiến' : 'Thực tế'}</Badge></TableCell><TableCell className="font-mono">{formatCurrency(revenue.amount, revenue.currency)}</TableCell><TableCell className="text-muted-foreground">{revenue.note || '-'}</TableCell><TableCell><Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => { setDeleteType('revenue'); setDeleteId(revenue.id) }}><Trash2 className="size-4" /></Button></TableCell></TableRow>))}</TableBody></Table>
               ) : <Empty><EmptyHeader><EmptyTitle>Chưa có dữ liệu doanh thu</EmptyTitle></EmptyHeader></Empty>}
+            </TabsContent>
+
+            <TabsContent value="dailyReports" className="mt-0">
+              <ProjectDailyReportsCalendar projectId={project.id} members={members} />
             </TabsContent>
           </CardContent>
         </Tabs>
