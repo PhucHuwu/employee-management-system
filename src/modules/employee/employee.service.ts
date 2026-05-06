@@ -55,9 +55,12 @@ export class EmployeeService {
     return created;
   }
 
-  async getEmployeeById(id: string) {
-    const employee = await this.prisma.employee.findUnique({
-      where: { id },
+  async getEmployeeById(user: AuthUser, id: string) {
+    const where: Prisma.EmployeeWhereInput = { id, deletedAt: null };
+    this.applyUserFilter(user, where);
+
+    const employee = await this.prisma.employee.findFirst({
+      where,
       include: this.employeeInclude(),
     });
 
@@ -68,7 +71,7 @@ export class EmployeeService {
     return employee;
   }
 
-  async listEmployees(query: EmployeeQueryDto) {
+  async listEmployees(user: AuthUser, query: EmployeeQueryDto) {
     const where: Prisma.EmployeeWhereInput = {
       deletedAt: null,
       employmentStatus: query.status,
@@ -90,6 +93,8 @@ export class EmployeeService {
           }
         : undefined,
     };
+
+    this.applyUserFilter(user, where);
 
     if (query.keyword?.trim()) {
       const keyword = query.keyword.trim();
@@ -325,5 +330,44 @@ export class EmployeeService {
       id: user.id,
       role: user.role,
     };
+  }
+
+  private applyUserFilter(user: AuthUser, where: Prisma.EmployeeWhereInput): void {
+    if (user.role === Role.ADMIN) {
+      return;
+    }
+
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      where.id = user.employeeId;
+      return;
+    }
+
+    if (user.role === Role.MANAGER) {
+      const scopeFilter: Prisma.EmployeeWhereInput = {};
+
+      if (user.departmentScopeId) {
+        scopeFilter.departmentId = user.departmentScopeId;
+      }
+
+      if ((user.projectScopeIds ?? []).length > 0) {
+        scopeFilter.projectMembers = {
+          some: {
+            projectId: { in: user.projectScopeIds ?? [] },
+            leftAt: null,
+          },
+        };
+      }
+
+      if ((user.scopeEmployeeIds ?? []).length > 0) {
+        scopeFilter.id = { in: user.scopeEmployeeIds ?? [] };
+      }
+
+      if (!scopeFilter.departmentId && !scopeFilter.projectMembers && !scopeFilter.id) {
+        where.id = { in: ['00000000-0000-0000-0000-000000000000'] };
+        return;
+      }
+
+      Object.assign(where, scopeFilter);
+    }
   }
 }

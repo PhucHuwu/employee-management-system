@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   ADMIN
   MANAGER
+  EMPLOYEE
 }
 
 enum FixedSchedule {
@@ -117,6 +118,7 @@ model Employee {
   scheduleRequests ScheduleRequest[]
   projectMembers   ProjectMember[]
   titleHistories   EmployeeTitleHistory[]
+  userAccount      UserAccount?
 
   @@index([departmentId, positionId])
   @@map("employees")
@@ -264,6 +266,20 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model Permission {
+  id        String   @id @default(uuid()) @db.Uuid
+  resource  String   @db.VarChar(100)
+  action    String   @db.VarChar(50)
+  role      Role
+  ownership String   @default("any") @db.VarChar(20)
+  allowed   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([resource, action, role, ownership])
+  @@map("permissions")
+}
+
 model UserAccount {
   id                String      @id @default(uuid()) @db.Uuid
   email             String      @unique @db.VarChar(255)
@@ -272,9 +288,11 @@ model UserAccount {
   active            Boolean     @default(true)
   departmentScopeId String?     @map("department_scope_id") @db.Uuid
   projectScopeIds   String[]    @default([]) @map("project_scope_ids")
+  employeeId        String?     @unique @map("employee_id") @db.Uuid
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")
   departmentScope   Department? @relation(fields: [departmentScopeId], references: [id], onDelete: SetNull)
+  employee          Employee?   @relation(fields: [employeeId], references: [id], onDelete: SetNull)
 
   @@index([role, active])
   @@map("user_accounts")

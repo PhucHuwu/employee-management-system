@@ -260,6 +260,46 @@ export const departmentApi = {
     apiClient.get<PaginatedResponse<Department>>('/departments', params),
 
   getById: (id: string) => apiClient.get<Department>(`/departments/${id}`),
+
+  create: (data: { name: string }) => apiClient.post<Department>('/departments', data),
+
+  update: (id: string, data: { name: string }) => apiClient.put<Department>(`/departments/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/departments/${id}`),
+}
+
+// ==================== Analytics API ====================
+export const analyticsApi = {
+  getDashboardSummary: () => apiClient.get<{
+    employeeCount: { active: number; inactive: number; total: number }
+    projectCount: { running: number; paused: number; ended: number; total: number }
+    pendingRequests: number
+    todayOff: number
+    todayRemote: number
+    totalRevenueActual: number
+    totalRevenueForecast: number
+    overdueProjects: number
+    missingDailyReports: number
+  }>('/analytics/dashboard-summary'),
+
+  getExceptionReports: () => apiClient.get<{
+    overdueProjects: Array<{ id: string; code: string; name: string; endDate: string }>
+    missingDailyReports: Array<{ employeeId: string; fullName: string; missingDays: number }>
+    budgetOverruns: unknown[]
+  }>('/analytics/exception-reports'),
+
+  getRevenue: (params?: { projectId?: string; year?: number }) =>
+    apiClient.get<{
+      months: Array<{ month: number; forecast: number; actual: number }>
+      totalForecast: number
+      totalActual: number
+    }>('/analytics/revenue', params),
+
+  getResourceUtilization: (params?: { from?: string; to?: string }) =>
+    apiClient.get<{
+      employees: Array<{ employeeId: string; fullName: string; projectCount: number; allocationScore: number }>
+      avgProjectsPerEmployee: number
+    }>('/analytics/resource-utilization', params),
 }
 
 // ==================== Audit Log API ====================

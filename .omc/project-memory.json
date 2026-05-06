@@ -1,0 +1,217 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778087394169,
+  "projectRoot": "/Users/n0x/WebStorm/htql/employee-management-system",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": ">=20.0.0",
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "@nestjs/core",
+        "version": "10.4.2",
+        "category": "backend"
+      },
+      {
+        "name": "jest",
+        "version": "29.7.0",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": "Node.js 20.0.0"
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run start",
+    "scripts": {
+      "build": "nest build",
+      "start": "node dist/main.js",
+      "start:dev": "nest start --watch",
+      "start:debug": "nest start --debug --watch",
+      "lint": "eslint \"src/**/*.ts\" \"prisma/**/*.ts\"",
+      "format": "prettier --write \"{src,prisma}/**/*.ts\"",
+      "test": "jest",
+      "test:watch": "jest --watch",
+      "test:cov": "jest --coverage",
+      "prisma:generate": "prisma generate",
+      "prisma:migrate:dev": "prisma migrate dev",
+      "prisma:migrate:deploy": "prisma migrate deploy",
+      "prisma:studio": "prisma studio",
+      "db:seed": "ts-node prisma/seed.ts"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase/PascalCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 2,
+      "lastAccessed": 1778087394162,
+      "keyFiles": [
+        "tsconfig.build.tsbuildinfo",
+        "tsconfig.tsbuildinfo"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 5,
+      "lastAccessed": 1778087394165,
+      "keyFiles": [
+        "additional-features-spec.md",
+        "development-plan-3dev.md",
+        "frontend-implementation-plan.md",
+        "project.md",
+        "system-analysis-design.md"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1778087394165,
+      "keyFiles": [
+        "components.json",
+        "eslint.config.mjs",
+        "next-env.d.ts",
+        "next.config.mjs",
+        "package-lock.json"
+      ]
+    },
+    "prisma": {
+      "path": "prisma",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1778087394165,
+      "keyFiles": [
+        "schema.prisma",
+        "seed.ts"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1778087394166,
+      "keyFiles": [
+        "check-seed.js"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 2,
+      "lastAccessed": 1778087394166,
+      "keyFiles": [
+        "app.module.ts",
+        "main.ts"
+      ]
+    },
+    "dist/src": {
+      "path": "dist/src",
+      "purpose": "Source code",
+      "fileCount": 6,
+      "lastAccessed": 1778087394166,
+      "keyFiles": [
+        "app.module.d.ts",
+        "app.module.js",
+        "app.module.js.map"
+      ]
+    },
+    "frontend/app": {
+      "path": "frontend/app",
+      "purpose": "Application code",
+      "fileCount": 3,
+      "lastAccessed": 1778087394166,
+      "keyFiles": [
+        "globals.css",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "frontend/components": {
+      "path": "frontend/components",
+      "purpose": "UI components",
+      "fileCount": 3,
+      "lastAccessed": 1778087394166,
+      "keyFiles": [
+        "app-sidebar.tsx",
+        "providers.tsx",
+        "theme-provider.tsx"
+      ]
+    },
+    "frontend/lib": {
+      "path": "frontend/lib",
+      "purpose": "Library code",
+      "fileCount": 4,
+      "lastAccessed": 1778087394166,
+      "keyFiles": [
+        "auth-context.tsx",
+        "breadcrumb-map.ts",
+        "types.ts"
+      ]
+    },
+    "prisma/migrations": {
+      "path": "prisma/migrations",
+      "purpose": "Database migrations",
+      "fileCount": 0,
+      "lastAccessed": 1778087394167,
+      "keyFiles": []
+    },
+    "src/config": {
+      "path": "src/config",
+      "purpose": "Configuration files",
+      "fileCount": 1,
+      "lastAccessed": 1778087394167,
+      "keyFiles": [
+        "app-config.service.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "PLAN.md",
+      "accessCount": 1,
+      "lastAccessed": 1778087409439,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

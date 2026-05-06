@@ -1,9 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { AuthUser } from '@/modules/identity/auth-user.type';
+import { CreateDailyReportDto } from './dto/create-daily-report.dto';
 import { DailyReportQueryDto } from './dto/daily-report-query.dto';
 import { ProjectDailyProgressQueryDto } from './dto/project-daily-progress-query.dto';
+import { UpdateDailyReportDto } from './dto/update-daily-report.dto';
 
 interface PagedResult<T> {
   data: T[];
@@ -21,10 +23,14 @@ export class DailyReportService {
     user: AuthUser,
     query: DailyReportQueryDto,
   ): Promise<PagedResult<unknown>> {
-    this.assertEmployeeScope(user, query.employeeId);
+    const effectiveEmployeeId = user.role === Role.EMPLOYEE && user.employeeId
+      ? user.employeeId
+      : query.employeeId;
+
+    this.assertEmployeeScope(user, effectiveEmployeeId);
 
     const where: Prisma.DailyReportWhereInput = {
-      employeeId: query.employeeId,
+      employeeId: effectiveEmployeeId,
       projectId: query.projectId,
       reportDate: this.buildDateRangeFilter(query.from, query.to),
       employee: this.buildEmployeeScopeFilter(user),
@@ -120,6 +126,10 @@ export class DailyReportService {
       return {};
     }
 
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      return { id: user.employeeId };
+    }
+
     const scopeFilter: Prisma.EmployeeWhereInput = {};
 
     if (user.departmentScopeId) {
@@ -159,6 +169,13 @@ export class DailyReportService {
       return;
     }
 
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      if (employeeId !== user.employeeId) {
+        throw new ForbiddenException('You do not have permission for this employee');
+      }
+      return;
+    }
+
     const isByDepartment = Boolean(user.departmentScopeId);
     const isByProject = (user.projectScopeIds ?? []).length > 0;
     const isByEmployeeList = (user.scopeEmployeeIds ?? []).length > 0;
@@ -170,5 +187,92 @@ export class DailyReportService {
     if (isByEmployeeList && !(user.scopeEmployeeIds ?? []).includes(employeeId)) {
       throw new ForbiddenException('You do not have permission for this employee');
     }
+  }
+
+  async createDailyReport(user: AuthUser, dto: CreateDailyReportDto) {
+    this.assertEmployeeScope(user, dto.employeeId);
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: dto.employeeId },
+    });
+
+    if (!employee) {
+      throw new NotFoundException('employee not found');
+    }
+
+    try {
+      return await this.prisma.dailyReport.create({
+        data: {
+          reportDate: new Date(dto.reportDate),
+          employeeId: dto.employeeId,
+          projectId: dto.projectId ?? null,
+          task: dto.task,
+          workContent: dto.workContent,
+        },
+      });
+    } catch (error) {
+      this.rethrowPrismaError(error, 'daily report already exists for this employee, date and project');
+    }
+  }
+
+  async updateDailyReport(user: AuthUser, id: string, dto: UpdateDailyReportDto) {
+    const existing = await this.prisma.dailyReport.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('daily report not found');
+    }
+
+    this.assertEmployeeScope(user, existing.employeeId);
+
+    if (dto.employeeId) {
+      this.assertEmployeeScope(user, dto.employeeId);
+      const employee = await this.prisma.employee.findUnique({
+        where: { id: dto.employeeId },
+      });
+      if (!employee) {
+        throw new NotFoundException('employee not found');
+      }
+    }
+
+    try {
+      return await this.prisma.dailyReport.update({
+        where: { id },
+        data: {
+          ...(dto.reportDate !== undefined && { reportDate: new Date(dto.reportDate) }),
+          ...(dto.employeeId !== undefined && { employeeId: dto.employeeId }),
+          ...(dto.projectId !== undefined && { projectId: dto.projectId ?? null }),
+          ...(dto.task !== undefined && { task: dto.task }),
+          ...(dto.workContent !== undefined && { workContent: dto.workContent }),
+        },
+      });
+    } catch (error) {
+      this.rethrowPrismaError(error, 'daily report already exists for this employee, date and project');
+    }
+  }
+
+  async deleteDailyReport(user: AuthUser, id: string) {
+    const existing = await this.prisma.dailyReport.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('daily report not found');
+    }
+
+    this.assertEmployeeScope(user, existing.employeeId);
+
+    await this.prisma.dailyReport.delete({
+      where: { id },
+    });
+  }
+
+  private rethrowPrismaError(error: unknown, conflictMessage: string): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new ConflictException(conflictMessage);
+    }
+
+    throw error;
   }
 }

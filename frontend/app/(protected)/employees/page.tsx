@@ -52,7 +52,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { Employee, EmployeeStatus, FixedSchedule } from '@/lib/types'
 import { EmployeeForm } from '@/components/employees/employee-form'
 import { employeeApi } from '@/lib/api/endpoints'
-import { getEmployeeProfileMock } from '@/lib/employee-profile-mock'
 
 const statusLabels: Record<EmployeeStatus, string> = {
   ACTIVE: 'Đang hoạt động',
@@ -238,19 +237,19 @@ export default function EmployeesPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredEmployees.map((employee) => {
-                    const profile = getEmployeeProfileMock({
-                      id: employee.id,
-                      fullName: employee.fullName,
-                      address: employee.address,
-                    })
+                    const initials = employee.fullName
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
 
                     return (
                       <TableRow key={employee.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="size-8">
-                              <AvatarImage src={profile.avatarUrl} />
-                              <AvatarFallback>{profile.initials}</AvatarFallback>
+                            <Avatar className="size-8 bg-primary text-primary-foreground">
+                              <AvatarFallback>{initials}</AvatarFallback>
                             </Avatar>
                             <div className="font-medium">{employee.fullName}</div>
                           </div>

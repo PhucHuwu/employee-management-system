@@ -8,7 +8,9 @@ import { DailyReportModule } from './modules/daily-report/daily-report.module';
 import { ProjectModule } from './modules/project/project.module';
 import { PositionModule } from './modules/position/position.module';
 import { JobTitleModule } from './modules/job-title/job-title.module';
+import { DepartmentModule } from './modules/department/department.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { AppConfigService } from './config/app-config.service';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -25,7 +27,9 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     ProjectModule,
     PositionModule,
     JobTitleModule,
+    DepartmentModule,
     AuditModule,
+    AnalyticsModule,
   ],
   providers: [AppConfigService],
 })

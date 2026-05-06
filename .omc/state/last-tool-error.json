@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"export DATABASE_URL=\\\"postgresql://postgres:postgres@localhost:5432/employee_management_system?schema=public\\\" && npx prisma migrate dev --name add_rbac_permissions\",\"timeout\":120000,\"desc...",
+  "error": "Exit code 1\nPrisma schema loaded from prisma/schema.prisma\nDatasource \"db\": PostgreSQL database \"employee_management_system\", schema \"public\" at \"localhost:5432\"\n\nError: P1010: User `postgres` was denied access on the database `employee_management_system.public`",
+  "timestamp": "2026-05-06T17:01:29.978Z",
+  "retry_count": 3
+}

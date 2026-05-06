@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserAccount } from '@prisma/client';
+import { compare } from 'bcrypt';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 
 @Injectable()
@@ -15,7 +16,8 @@ export class IdentityService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (account.passwordHash !== password) {
+    const isMatch = await compare(password, account.passwordHash);
+    if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

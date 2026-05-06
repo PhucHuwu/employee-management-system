@@ -11,6 +11,7 @@ interface JwtPayload {
   role: Role;
   departmentScopeId?: string | null;
   projectScopeIds?: string[];
+  employeeId?: string | null;
 }
 
 @Injectable()
@@ -30,6 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: payload.role,
       departmentScopeId: payload.departmentScopeId,
       projectScopeIds: payload.projectScopeIds ?? [],
+      employeeId: payload.employeeId,
     };
   }
 }

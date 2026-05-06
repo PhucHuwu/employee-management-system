@@ -1,12 +1,23 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Users, Clock, FolderKanban, Calendar, FileText, Activity } from 'lucide-react'
+import {
+  Users,
+  Clock,
+  FolderKanban,
+  Calendar,
+  FileText,
+  Activity,
+  TrendingUp,
+  AlertTriangle,
+  PieChart,
+  BarChart3,
+} from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/lib/auth-context'
-import { employeeApi, projectApi, scheduleApi, dailyReportApi } from '@/lib/api/endpoints'
+import { employeeApi, projectApi, scheduleApi, dailyReportApi, analyticsApi } from '@/lib/api/endpoints'
 import { Progress } from '@/components/ui/progress'
 import {
   ResponsiveContainer,
@@ -14,7 +25,14 @@ import {
   Area,
   CartesianGrid,
   XAxis,
+  YAxis,
   Tooltip,
+  BarChart,
+  Bar,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+  Legend,
 } from 'recharts'
 
 interface DashboardStats {
@@ -26,12 +44,28 @@ interface DashboardStats {
   totalProjects: number
   todayOff: number
   todayRemote: number
+  totalRevenueActual: number
+  totalRevenueForecast: number
+  overdueProjects: number
+  missingDailyReports: number
 }
 
 interface MonthlyPoint {
   date: string
   off: number
   remote: number
+}
+
+interface RevenueMonth {
+  month: number
+  forecast: number
+  actual: number
+}
+
+interface ProjectStatusPoint {
+  name: string
+  value: number
+  color: string
 }
 
 function StatCard({
@@ -45,27 +79,30 @@ function StatCard({
   value: number | string
   description?: string
   icon: React.ElementType
-  variant?: 'default' | 'success' | 'warning' | 'info'
+  variant?: 'default' | 'success' | 'warning' | 'info' | 'danger'
 }) {
-  const variants = {
-    default: 'bg-muted text-muted-foreground',
-    success: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400',
-    warning: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-    info: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
+  const gradients: Record<string, string> = {
+    default: 'from-slate-500 to-slate-600',
+    success: 'from-emerald-500 to-emerald-600',
+    warning: 'from-amber-500 to-amber-600',
+    info: 'from-sky-500 to-sky-600',
+    danger: 'from-rose-500 to-rose-600',
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={`rounded-lg p-2 ${variants[variant]}`}>
-          <Icon className="size-4" />
+    <Card className="overflow-hidden border-0 shadow-sm">
+      <div className={`bg-gradient-to-r ${gradients[variant]} p-5 text-white`}>
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-sm font-medium opacity-90">{title}</p>
+            <p className="text-3xl font-bold tracking-tight">{value}</p>
+            {description && <p className="text-xs opacity-80">{description}</p>}
+          </div>
+          <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+            <Icon className="size-5 text-white" />
+          </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
-      </CardContent>
+      </div>
     </Card>
   )
 }
@@ -91,6 +128,9 @@ function DashboardSkeleton() {
   )
 }
 
+const PIE_COLORS = ['#0ea5e9', '#f59e0b', '#10b981']
+const MONTH_NAMES = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12']
+
 export default function DashboardPage() {
   const { user } = useAuth()
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -98,6 +138,18 @@ export default function DashboardPage() {
   const [pendingRequests, setPendingRequests] = useState<Array<{ id: string; employeeName: string; requestType: string; requestDate: string }>>([])
   const [topProjects, setTopProjects] = useState<Array<{ id: string; name: string; members: number; documents: number }>>([])
   const [recentReports, setRecentReports] = useState<Array<{ id: string; employeeName: string; projectName: string; task: string; reportDate: string }>>([])
+
+  const [revenueData, setRevenueData] = useState<RevenueMonth[]>([])
+  const [projectStatusData, setProjectStatusData] = useState<ProjectStatusPoint[]>([])
+  const [exceptions, setExceptions] = useState<{
+    overdueProjects: Array<{ id: string; code: string; name: string; endDate: string }>
+    missingDailyReports: Array<{ employeeId: string; fullName: string; missingDays: number }>
+  }>({ overdueProjects: [], missingDailyReports: [] })
+  const [utilization, setUtilization] = useState<{
+    employees: Array<{ employeeId: string; fullName: string; projectCount: number }>
+    avgProjectsPerEmployee: number
+  }>({ employees: [], avgProjectsPerEmployee: 0 })
+
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchStats = useCallback(async () => {
@@ -106,6 +158,7 @@ export default function DashboardPage() {
       const today = new Date().toISOString().slice(0, 10)
       const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
       const monthFrom = firstOfMonth.toISOString().slice(0, 10)
+      const currentYear = new Date().getFullYear()
 
       const [
         activeEmployees,
@@ -116,6 +169,10 @@ export default function DashboardPage() {
         todaySummary,
         monthSummary,
         reports,
+        summary,
+        revenue,
+        exceptionData,
+        utilizationData,
       ] = await Promise.all([
         employeeApi.getAll({ status: 'ACTIVE', size: 1 }),
         employeeApi.getAll({ status: 'INACTIVE', size: 1 }),
@@ -125,20 +182,29 @@ export default function DashboardPage() {
         scheduleApi.getDailySummary({ from: today, to: today }),
         scheduleApi.getDailySummary({ from: monthFrom, to: today }),
         dailyReportApi.getAll({ size: 8 }),
+        analyticsApi.getDashboardSummary(),
+        analyticsApi.getRevenue({ year: currentYear }),
+        analyticsApi.getExceptionReports(),
+        analyticsApi.getResourceUtilization(),
       ])
 
       const todaySummaryItem = todaySummary[0]
-      const todayOff = (todaySummaryItem?.counts?.OFF_FULL_DAY ?? todaySummaryItem?.offFullDay ?? 0) +
+      const todayOff =
+        (todaySummaryItem?.counts?.OFF_FULL_DAY ?? todaySummaryItem?.offFullDay ?? 0) +
         (todaySummaryItem?.counts?.OFF_AM ?? todaySummaryItem?.offAM ?? 0) +
         (todaySummaryItem?.counts?.OFF_PM ?? todaySummaryItem?.offPM ?? 0)
-      const todayRemote = (todaySummaryItem?.counts?.REMOTE_FULL_DAY ?? todaySummaryItem?.remoteFullDay ?? 0) +
+      const todayRemote =
+        (todaySummaryItem?.counts?.REMOTE_FULL_DAY ?? todaySummaryItem?.remoteFullDay ?? 0) +
         (todaySummaryItem?.counts?.REMOTE_AM ?? todaySummaryItem?.remoteAM ?? 0) +
         (todaySummaryItem?.counts?.REMOTE_PM ?? todaySummaryItem?.remotePM ?? 0)
 
       setMonthlySummary(
         monthSummary.map((d) => ({
           date: d.date.slice(8, 10),
-          off: (d.counts?.OFF_FULL_DAY ?? d.offFullDay ?? 0) + (d.counts?.OFF_AM ?? d.offAM ?? 0) + (d.counts?.OFF_PM ?? d.offPM ?? 0),
+          off:
+            (d.counts?.OFF_FULL_DAY ?? d.offFullDay ?? 0) +
+            (d.counts?.OFF_AM ?? d.offAM ?? 0) +
+            (d.counts?.OFF_PM ?? d.offPM ?? 0),
           remote:
             (d.counts?.REMOTE_FULL_DAY ?? d.remoteFullDay ?? 0) +
             (d.counts?.REMOTE_AM ?? d.remoteAM ?? 0) +
@@ -186,6 +252,33 @@ export default function DashboardPage() {
         totalProjects: allProjects.total,
         todayOff,
         todayRemote,
+        totalRevenueActual: summary.totalRevenueActual || 0,
+        totalRevenueForecast: summary.totalRevenueForecast || 0,
+        overdueProjects: summary.overdueProjects || 0,
+        missingDailyReports: summary.missingDailyReports || 0,
+      })
+
+      setRevenueData(
+        revenue.months.map((m) => ({
+          ...m,
+          name: MONTH_NAMES[m.month - 1],
+        }))
+      )
+
+      setProjectStatusData([
+        { name: 'Đang chạy', value: summary.projectCount?.running || 0, color: PIE_COLORS[0] },
+        { name: 'Tạm dừng', value: summary.projectCount?.paused || 0, color: PIE_COLORS[1] },
+        { name: 'Kết thúc', value: summary.projectCount?.ended || 0, color: PIE_COLORS[2] },
+      ])
+
+      setExceptions({
+        overdueProjects: exceptionData.overdueProjects || [],
+        missingDailyReports: exceptionData.missingDailyReports || [],
+      })
+
+      setUtilization({
+        employees: (utilizationData.employees || []).slice(0, 8),
+        avgProjectsPerEmployee: utilizationData.avgProjectsPerEmployee || 0,
       })
     } finally {
       setIsLoading(false)
@@ -200,6 +293,11 @@ export default function DashboardPage() {
     if (!stats?.totalEmployees) return 0
     return Math.round((stats.activeEmployees / stats.totalEmployees) * 100)
   }, [stats])
+
+  const revenueTotal = useMemo(() => {
+    const total = revenueData.reduce((acc, m) => acc + m.actual, 0)
+    return total.toLocaleString('vi-VN')
+  }, [revenueData])
 
   const statusColor = (type: string): 'destructive' | 'secondary' | 'outline' => {
     if (type.startsWith('OFF')) return 'destructive'
@@ -223,7 +321,9 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Xin chào, {user?.fullName || 'Quản trị viên'}! Đây là tổng quan hệ thống.</p>
+        <p className="text-muted-foreground">
+          Xin chào, {user?.fullName || 'Quản trị viên'}! Đây là tổng quan hệ thống.
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -256,9 +356,28 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="flex gap-3">
-        <Badge variant="destructive">Nghỉ hôm nay: {stats?.todayOff || 0}</Badge>
-        <Badge variant="secondary">Remote hôm nay: {stats?.todayRemote || 0}</Badge>
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title="Doanh thu thực tế"
+          value={`${revenueTotal} USD`}
+          description={`Dự kiến: ${(stats?.totalRevenueForecast || 0).toLocaleString('vi-VN')} USD`}
+          icon={TrendingUp}
+          variant="success"
+        />
+        <StatCard
+          title="Dự án trễ hạn"
+          value={stats?.overdueProjects || 0}
+          description="Dự án quá hạn chưa kết thúc"
+          icon={AlertTriangle}
+          variant="danger"
+        />
+        <StatCard
+          title="Thiếu Daily Report"
+          value={stats?.missingDailyReports || 0}
+          description="Nhân viên chưa báo cáo > 2 ngày"
+          icon={FileText}
+          variant="warning"
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -270,7 +389,9 @@ export default function DashboardPage() {
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span>Đang hoạt động</span>
-              <span className="font-medium">{stats?.activeEmployees || 0} ({activePercent}%)</span>
+              <span className="font-medium">
+                {stats?.activeEmployees || 0} ({activePercent}%)
+              </span>
             </div>
             <Progress value={activePercent} />
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -304,6 +425,134 @@ export default function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="size-4" />
+              Doanh thu: Dự kiến vs Thực tế
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => `${Number(value).toLocaleString('vi-VN')} USD`} />
+                <Legend />
+                <Bar dataKey="forecast" fill="#94a3b8" name="Dự kiến" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="actual" fill="#0ea5e9" name="Thực tế" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <PieChart className="size-4" />
+              Phân bổ trạng thái dự án
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RePieChart>
+                <Pie
+                  data={projectStatusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={4}
+                  dataKey="value"
+                  nameKey="name"
+                >
+                  {projectStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </RePieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="size-4 text-destructive" />
+              Cảnh báo ngoại lệ
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {exceptions.overdueProjects.length === 0 && exceptions.missingDailyReports.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Không có ngoại lệ nào được phát hiện.</p>
+            ) : (
+              <>
+                {exceptions.overdueProjects.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-destructive">Dự án trễ hạn</p>
+                    {exceptions.overdueProjects.map((p) => (
+                      <div key={p.id} className="flex items-center justify-between rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+                        <div>
+                          <p className="text-sm font-medium">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {p.code} — Hết hạn: {new Date(p.endDate).toLocaleDateString('vi-VN')}
+                          </p>
+                        </div>
+                        <Badge variant="destructive">Trễ hạn</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {exceptions.missingDailyReports.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-amber-600">Thiếu Daily Report</p>
+                    {exceptions.missingDailyReports.map((e) => (
+                      <div key={e.employeeId} className="flex items-center justify-between rounded-lg border p-3">
+                        <p className="text-sm font-medium">{e.fullName}</p>
+                        <Badge variant="outline">{e.missingDays} ngày</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BarChart3 className="size-4" />
+              Tải công việc nhân sự
+            </CardTitle>
+            <CardDescription>
+              Trung bình {utilization.avgProjectsPerEmployee.toFixed(1)} dự án / nhân viên
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {utilization.employees.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Chưa có dữ liệu phân bổ.</p>
+            ) : (
+              utilization.employees.map((emp) => (
+                <div key={emp.employeeId} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>{emp.fullName}</span>
+                    <span className="font-medium">{emp.projectCount} dự án</span>
+                  </div>
+                  <Progress value={Math.min((emp.projectCount / Math.max(utilization.avgProjectsPerEmployee * 2, 1)) * 100, 100)} />
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
             <CardTitle className="text-base">Yêu cầu chờ duyệt gần nhất</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -314,7 +563,9 @@ export default function DashboardPage() {
                 <div key={item.id} className="flex items-center justify-between rounded-lg border p-3">
                   <div>
                     <p className="text-sm font-medium">{item.employeeName}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(item.requestDate).toLocaleDateString('vi-VN')}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(item.requestDate).toLocaleDateString('vi-VN')}
+                    </p>
                   </div>
                   <Badge variant={statusColor(item.requestType)}>{item.requestType}</Badge>
                 </div>
@@ -361,16 +612,19 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium">{report.task}</p>
-                    <p className="text-xs text-muted-foreground">{report.employeeName} - {report.projectName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {report.employeeName} - {report.projectName}
+                    </p>
                   </div>
-                  <Badge variant="secondary">{new Date(report.reportDate).toLocaleDateString('vi-VN')}</Badge>
+                  <Badge variant="secondary">
+                    {new Date(report.reportDate).toLocaleDateString('vi-VN')}
+                  </Badge>
                 </div>
               </div>
             ))
           )}
         </CardContent>
       </Card>
-
     </div>
   )
 }

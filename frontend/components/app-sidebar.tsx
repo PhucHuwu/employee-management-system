@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   Users,
   Calendar,
-  ClipboardCheck,
+  Building2,
   FileText,
   FolderKanban,
   Briefcase,
@@ -80,6 +80,11 @@ const menuItems = [
     icon: FolderKanban,
   },
   {
+    title: 'Phòng ban',
+    url: '/departments',
+    icon: Building2,
+  },
+  {
     title: 'Vị trí',
     url: '/positions',
     icon: Briefcase,
@@ -137,14 +142,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-2 py-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ClipboardCheck className="size-4" />
+      <SidebarHeader className="border-b border-sidebar-border/30 bg-sidebar-primary/10">
+        <div className="flex items-center gap-3 px-3 py-3">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <Users className="size-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">EMS</span>
-            <span className="text-xs text-muted-foreground">Quản lý nhân sự</span>
+            <span className="text-sm font-bold tracking-tight text-sidebar-foreground">EMS</span>
+            <span className="text-[11px] text-sidebar-foreground/70">Hệ thống quản lý nhân sự</span>
           </div>
         </div>
       </SidebarHeader>

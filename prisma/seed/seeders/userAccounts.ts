@@ -1,4 +1,5 @@
 import { Role } from '@prisma/client'
+import { hash } from 'bcrypt'
 
 import type { SeedContext } from '../context'
 
@@ -9,7 +10,7 @@ export const seedUserAccounts = async (ctx: SeedContext): Promise<void> => {
     {
       id: ids.users.admin,
       email: 'admin@ems.local',
-      passwordHash: 'admin123',
+      passwordHash: await hash('admin123', 10),
       role: Role.ADMIN,
       active: true,
       departmentScopeId: null,
@@ -18,7 +19,7 @@ export const seedUserAccounts = async (ctx: SeedContext): Promise<void> => {
     {
       id: ids.users.managerEngineering,
       email: 'manager.engineering@ems.local',
-      passwordHash: 'manager123',
+      passwordHash: await hash('manager123', 10),
       role: Role.MANAGER,
       active: true,
       departmentScopeId: ids.departments.engineering,
@@ -27,7 +28,7 @@ export const seedUserAccounts = async (ctx: SeedContext): Promise<void> => {
     {
       id: ids.users.managerBusiness,
       email: 'manager.business@ems.local',
-      passwordHash: 'manager123',
+      passwordHash: await hash('manager123', 10),
       role: Role.MANAGER,
       active: true,
       departmentScopeId: ids.departments.business,

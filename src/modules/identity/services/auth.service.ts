@@ -31,6 +31,7 @@ export class AuthService {
       role: account.role,
       departmentScopeId: account.departmentScopeId,
       projectScopeIds: account.projectScopeIds,
+      employeeId: account.employeeId,
     };
   }
 }

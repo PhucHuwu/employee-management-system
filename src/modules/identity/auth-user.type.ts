@@ -7,4 +7,5 @@ export interface AuthUser {
   departmentScopeId?: string | null;
   projectScopeIds?: string[];
   scopeEmployeeIds?: string[];
+  employeeId?: string | null;
 }
