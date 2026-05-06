@@ -345,6 +345,161 @@ export interface ApiListResponse<T> {
   }
 }
 
+// ==================== Leave Balance ====================
+export interface LeaveBalance {
+  id: string
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  year: number
+  annualLeave: number
+  sickLeave: number
+  unpaidTaken: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LeaveTransaction {
+  id: string
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  year: number
+  days: number
+  type: ScheduleRequestType
+  description?: string
+  createdAt: string
+}
+
+// ==================== Recruitment ====================
+export type JobRequisitionStatus = 'DRAFT' | 'OPEN' | 'CLOSED' | 'FILLED' | 'CANCELLED'
+export type CandidateStatus = 'APPLIED' | 'SCREENING' | 'INTERVIEW' | 'OFFERED' | 'HIRED' | 'REJECTED'
+export type InterviewResult = 'PENDING' | 'PASSED' | 'FAILED' | 'NO_SHOW'
+
+export interface JobRequisition {
+  id: string
+  title: string
+  description?: string
+  department: string
+  location?: string
+  salaryMin?: number
+  salaryMax?: number
+  status: JobRequisitionStatus
+  requestedBy: string
+  openedAt?: string
+  closedAt?: string
+  createdAt: string
+  updatedAt: string
+  _count?: { candidates?: number }
+}
+
+export interface Candidate {
+  id: string
+  fullName: string
+  email: string
+  phone?: string
+  resumeUrl?: string
+  source?: string
+  status: CandidateStatus
+  appliedAt: string
+  notes?: string
+  jobRequisitionId: string
+  jobRequisition?: JobRequisition
+  interviews?: Interview[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Interview {
+  id: string
+  scheduledAt: string
+  round: number
+  interviewer: string
+  result: InterviewResult
+  score?: number
+  notes?: string
+  candidateId: string
+  candidate?: Candidate
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Training ====================
+export interface TrainingPlan {
+  id: string
+  title: string
+  description?: string
+  provider?: string
+  location?: string
+  startDate: string
+  endDate: string
+  cost?: number
+  createdAt: string
+  updatedAt: string
+  _count?: { records?: number }
+}
+
+export interface TrainingRecord {
+  id: string
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  trainingPlanId: string
+  trainingPlan?: TrainingPlan
+  completionDate?: string
+  certificateUrl?: string
+  certificateExpiry?: string
+  score?: number
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Payroll ====================
+export type PayrollStatus = 'DRAFT' | 'PENDING' | 'APPROVED' | 'PAID'
+
+export interface SalaryStructure {
+  id: string
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  baseSalary: number
+  allowance: number
+  bonus: number
+  effectiveFrom: string
+  effectiveTo?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Payroll {
+  id: string
+  month: number
+  year: number
+  status: PayrollStatus
+  generatedAt: string
+  approvedAt?: string
+  paidAt?: string
+  createdAt: string
+  updatedAt: string
+  _count?: { items?: number }
+}
+
+export interface PayrollItem {
+  id: string
+  payrollId: string
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  baseSalary: number
+  allowance: number
+  bonus: number
+  deductions: number
+  tax: number
+  netPay: number
+  workingDays: number
+  actualDays: number
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== API Response ====================
 export interface ApiError {
   code: string
   message: string

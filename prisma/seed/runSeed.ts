@@ -14,6 +14,7 @@ import { seedProjectMembers } from './seeders/projectMembers'
 import { seedProjectRevenues } from './seeders/projectRevenues'
 import { seedProjects } from './seeders/projects'
 import { seedScheduleRequests } from './seeders/scheduleRequests'
+import { seedPermissions } from './seeders/permissions'
 import { seedUserAccounts } from './seeders/userAccounts'
 
 export const runSeed = async (): Promise<void> => {
@@ -25,8 +26,8 @@ export const runSeed = async (): Promise<void> => {
     await seedDepartments(ctx)
     await seedPositions(ctx)
     await seedJobTitles(ctx)
-    await seedUserAccounts(ctx)
     await seedEmployees(ctx)
+    await seedUserAccounts(ctx)
     await seedProjects(ctx)
     await seedProjectMembers(ctx)
     await seedCustomers(ctx)
@@ -37,6 +38,7 @@ export const runSeed = async (): Promise<void> => {
     await seedProjectRevenues(ctx)
     await seedProjectDocuments(ctx)
     await seedAuditLogs(ctx)
+    await seedPermissions(ctx)
   } finally {
     await ctx.prisma.$disconnect()
   }

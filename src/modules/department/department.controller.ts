@@ -8,30 +8,31 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { CurrentUser } from '@/modules/identity/decorators/current-user.decorator';
-import { Roles } from '@/modules/identity/decorators/roles.decorator';
+import { Permissions } from '@/modules/identity/decorators/permissions.decorator';
 import { AuthUser } from '@/modules/identity/auth-user.type';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { DepartmentService } from './department.service';
 
 @Controller('departments')
-@Roles(Role.ADMIN, Role.MANAGER)
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
 
   @Get()
+  @Permissions({ resource: 'department', action: 'read' })
   listDepartments() {
     return this.departmentService.listDepartments();
   }
 
   @Post()
+  @Permissions({ resource: 'department', action: 'create' })
   createDepartment(@Body() dto: CreateDepartmentDto) {
     return this.departmentService.createDepartment(dto);
   }
 
   @Put(':id')
+  @Permissions({ resource: 'department', action: 'update' })
   updateDepartment(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
@@ -41,6 +42,7 @@ export class DepartmentController {
   }
 
   @Delete(':id')
+  @Permissions({ resource: 'department', action: 'delete' })
   deleteDepartment(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,

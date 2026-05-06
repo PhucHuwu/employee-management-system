@@ -51,6 +51,37 @@ enum RevenueType {
   ACTUAL
 }
 
+enum JobRequisitionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  FILLED
+  CANCELLED
+}
+
+enum CandidateStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFERED
+  HIRED
+  REJECTED
+}
+
+enum InterviewResult {
+  PENDING
+  PASSED
+  FAILED
+  NO_SHOW
+}
+
+enum PayrollStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  PAID
+}
+
 model Department {
   id        String     @id @default(uuid()) @db.Uuid
   name      String     @db.VarChar(255)
@@ -118,6 +149,11 @@ model Employee {
   scheduleRequests ScheduleRequest[]
   projectMembers   ProjectMember[]
   titleHistories   EmployeeTitleHistory[]
+  leaveBalances    LeaveBalance[]
+  leaveTransactions LeaveTransaction[]
+  trainingRecords  TrainingRecord[]
+  salaryStructures SalaryStructure[]
+  payrollItems     PayrollItem[]
   userAccount      UserAccount?
 
   @@index([departmentId, positionId])
@@ -288,6 +324,7 @@ model UserAccount {
   active            Boolean     @default(true)
   departmentScopeId String?     @map("department_scope_id") @db.Uuid
   projectScopeIds   String[]    @default([]) @map("project_scope_ids")
+  scopeEmployeeIds  String[]    @default([]) @map("scope_employee_ids")
   employeeId        String?     @unique @map("employee_id") @db.Uuid
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")
@@ -296,4 +333,173 @@ model UserAccount {
 
   @@index([role, active])
   @@map("user_accounts")
+}
+
+model LeaveBalance {
+  id            String   @id @default(uuid()) @db.Uuid
+  year          Int
+  annualLeave   Int      @default(12) @map("annual_leave")
+  sickLeave     Int      @default(6) @map("sick_leave")
+  unpaidTaken   Int      @default(0) @map("unpaid_taken")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  employeeId    String   @map("employee_id") @db.Uuid
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([employeeId, year])
+  @@map("leave_balances")
+}
+
+model LeaveTransaction {
+  id          String                @id @default(uuid()) @db.Uuid
+  year        Int
+  days        Int
+  type        ScheduleRequestType
+  description String?
+  createdAt   DateTime              @default(now()) @map("created_at")
+  employeeId  String                @map("employee_id") @db.Uuid
+  employee    Employee              @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, year])
+  @@map("leave_transactions")
+}
+
+model JobRequisition {
+  id            String               @id @default(uuid()) @db.Uuid
+  title         String               @db.VarChar(255)
+  description   String?
+  department    String               @db.VarChar(255)
+  location      String?              @db.VarChar(255)
+  salaryMin     Decimal?             @map("salary_min") @db.Decimal(18, 2)
+  salaryMax     Decimal?             @map("salary_max") @db.Decimal(18, 2)
+  status        JobRequisitionStatus @default(DRAFT)
+  requestedBy   String               @map("requested_by") @db.Uuid
+  openedAt      DateTime?            @map("opened_at")
+  closedAt      DateTime?            @map("closed_at")
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+  candidates    Candidate[]
+
+  @@map("job_requisitions")
+}
+
+model Candidate {
+  id               String          @id @default(uuid()) @db.Uuid
+  fullName         String          @map("full_name") @db.VarChar(255)
+  email            String          @db.VarChar(255)
+  phone            String?         @db.VarChar(50)
+  resumeUrl        String?         @map("resume_url")
+  source           String?         @db.VarChar(100)
+  status           CandidateStatus @default(APPLIED)
+  appliedAt        DateTime        @default(now()) @map("applied_at")
+  notes            String?
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  jobRequisitionId String          @map("job_requisition_id") @db.Uuid
+  jobRequisition   JobRequisition  @relation(fields: [jobRequisitionId], references: [id], onDelete: Restrict)
+  interviews       Interview[]
+
+  @@map("candidates")
+}
+
+model Interview {
+  id          String          @id @default(uuid()) @db.Uuid
+  scheduledAt DateTime        @map("scheduled_at")
+  round       Int             @default(1)
+  interviewer String          @db.VarChar(255)
+  result      InterviewResult @default(PENDING)
+  score       Int?
+  notes       String?
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  candidateId String          @map("candidate_id") @db.Uuid
+  candidate   Candidate       @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+
+  @@map("interviews")
+}
+
+model TrainingPlan {
+  id            String            @id @default(uuid()) @db.Uuid
+  title         String            @db.VarChar(255)
+  description   String?
+  provider      String?           @db.VarChar(255)
+  location      String?           @db.VarChar(255)
+  startDate     DateTime          @map("start_date") @db.Date
+  endDate       DateTime          @map("end_date") @db.Date
+  cost          Decimal?          @db.Decimal(18, 2)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  records       TrainingRecord[]
+
+  @@map("training_plans")
+}
+
+model TrainingRecord {
+  id                String       @id @default(uuid()) @db.Uuid
+  completionDate    DateTime?    @map("completion_date") @db.Date
+  certificateUrl    String?      @map("certificate_url")
+  certificateExpiry DateTime?    @map("certificate_expiry") @db.Date
+  score             Int?
+  notes             String?
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  employeeId        String       @map("employee_id") @db.Uuid
+  trainingPlanId    String       @map("training_plan_id") @db.Uuid
+  employee          Employee     @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  trainingPlan      TrainingPlan @relation(fields: [trainingPlanId], references: [id], onDelete: Restrict)
+
+  @@map("training_records")
+}
+
+model SalaryStructure {
+  id            String   @id @default(uuid()) @db.Uuid
+  baseSalary    Decimal  @map("base_salary") @db.Decimal(18, 2)
+  allowance     Decimal  @default(0) @db.Decimal(18, 2)
+  bonus         Decimal  @default(0) @db.Decimal(18, 2)
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  effectiveTo   DateTime? @map("effective_to") @db.Date
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  employeeId    String   @map("employee_id") @db.Uuid
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@map("salary_structures")
+}
+
+model Payroll {
+  id          String        @id @default(uuid()) @db.Uuid
+  month       Int
+  year        Int
+  status      PayrollStatus @default(DRAFT)
+  generatedAt DateTime      @default(now()) @map("generated_at")
+  approvedAt  DateTime?     @map("approved_at")
+  paidAt      DateTime?     @map("paid_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  items       PayrollItem[]
+
+  @@unique([month, year])
+  @@map("payrolls")
+}
+
+model PayrollItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  baseSalary  Decimal  @map("base_salary") @db.Decimal(18, 2)
+  allowance   Decimal  @default(0) @db.Decimal(18, 2)
+  bonus       Decimal  @default(0) @db.Decimal(18, 2)
+  deductions  Decimal  @default(0) @db.Decimal(18, 2)
+  tax         Decimal  @default(0) @db.Decimal(18, 2)
+  netPay      Decimal  @map("net_pay") @db.Decimal(18, 2)
+  workingDays Int      @default(22) @map("working_days")
+  actualDays  Int      @default(22) @map("actual_days")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  payrollId   String   @map("payroll_id") @db.Uuid
+  employeeId  String   @map("employee_id") @db.Uuid
+  payroll     Payroll  @relation(fields: [payrollId], references: [id], onDelete: Restrict)
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([payrollId, employeeId])
+  @@map("payroll_items")
 }

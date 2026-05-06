@@ -14,6 +14,10 @@ import {
   ScrollText,
   LogOut,
   ChevronDown,
+  UserCheck,
+  UserPlus,
+  BookOpen,
+  Wallet,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -93,6 +97,26 @@ const menuItems = [
     title: 'Chức danh',
     url: '/job-titles',
     icon: Award,
+  },
+  {
+    title: 'Ngày phép',
+    url: '/leave-balances',
+    icon: UserCheck,
+  },
+  {
+    title: 'Tuyển dụng',
+    url: '/recruitment',
+    icon: UserPlus,
+  },
+  {
+    title: 'Đào tạo',
+    url: '/training',
+    icon: BookOpen,
+  },
+  {
+    title: 'Lương',
+    url: '/payrolls',
+    icon: Wallet,
   },
 ]
 

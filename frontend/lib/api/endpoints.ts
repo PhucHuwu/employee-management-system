@@ -28,6 +28,16 @@ import type {
   PaginatedResponse,
   ApiListResponse,
   ScheduleRequestType,
+  LeaveBalance,
+  LeaveTransaction,
+  JobRequisition,
+  Candidate,
+  Interview,
+  TrainingPlan,
+  TrainingRecord,
+  SalaryStructure,
+  Payroll,
+  PayrollItem,
 } from '@/lib/types'
 
 const toPaginated = <T>(response: (ApiListResponse<T> & {
@@ -313,4 +323,113 @@ export const auditLogApi = {
     page?: number
     size?: number
   }) => toPaginated(await apiClient.get<ApiListResponse<AuditLog>>('/internal/audit-logs', params)),
+}
+
+// ==================== Leave Balance API ====================
+export const leaveApi = {
+  getAll: async (params?: { page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<LeaveBalance>>('/leave-balances', params)),
+
+  getByEmployee: (employeeId: string, year: number) =>
+    apiClient.get<LeaveBalance>(`/leave-balances/${employeeId}/${year}`),
+
+  create: (data: { employeeId: string; year: number; annualLeave?: number; sickLeave?: number }) =>
+    apiClient.post<LeaveBalance>('/leave-balances', data),
+
+  update: (id: string, data: Partial<{ annualLeave: number; sickLeave: number }>) =>
+    apiClient.put<LeaveBalance>(`/leave-balances/${id}`, data),
+
+  getTransactions: async (employeeId: string, params?: { year?: number; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<LeaveTransaction>>(`/leave-balances/${employeeId}/transactions`, params)),
+}
+
+// ==================== Recruitment API ====================
+export const recruitmentApi = {
+  getJobRequisitions: async (params?: { status?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<JobRequisition>>('/job-requisitions', params)),
+
+  getJobRequisition: (id: string) => apiClient.get<JobRequisition>(`/job-requisitions/${id}`),
+
+  createJobRequisition: (data: Partial<JobRequisition>) =>
+    apiClient.post<JobRequisition>('/job-requisitions', data),
+
+  updateJobRequisition: (id: string, data: Partial<JobRequisition>) =>
+    apiClient.put<JobRequisition>(`/job-requisitions/${id}`, data),
+
+  deleteJobRequisition: (id: string) => apiClient.delete(`/job-requisitions/${id}`),
+
+  getCandidates: async (params?: { jobRequisitionId?: string; status?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<Candidate>>('/candidates', params)),
+
+  getCandidate: (id: string) => apiClient.get<Candidate>(`/candidates/${id}`),
+
+  createCandidate: (data: Partial<Candidate>) => apiClient.post<Candidate>('/candidates', data),
+
+  updateCandidate: (id: string, data: Partial<Candidate>) => apiClient.put<Candidate>(`/candidates/${id}`, data),
+
+  deleteCandidate: (id: string) => apiClient.delete(`/candidates/${id}`),
+
+  getInterviews: async (params?: { candidateId?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<Interview>>('/interviews', params)),
+
+  createInterview: (data: Partial<Interview>) => apiClient.post<Interview>('/interviews', data),
+
+  updateInterview: (id: string, data: Partial<Interview>) => apiClient.put<Interview>(`/interviews/${id}`, data),
+
+  deleteInterview: (id: string) => apiClient.delete(`/interviews/${id}`),
+}
+
+// ==================== Training API ====================
+export const trainingApi = {
+  getPlans: async (params?: { page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<TrainingPlan>>('/training-plans', params)),
+
+  getPlan: (id: string) => apiClient.get<TrainingPlan>(`/training-plans/${id}`),
+
+  createPlan: (data: Partial<TrainingPlan>) => apiClient.post<TrainingPlan>('/training-plans', data),
+
+  updatePlan: (id: string, data: Partial<TrainingPlan>) => apiClient.put<TrainingPlan>(`/training-plans/${id}`, data),
+
+  deletePlan: (id: string) => apiClient.delete(`/training-plans/${id}`),
+
+  getRecords: async (params?: { employeeId?: string; trainingPlanId?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<TrainingRecord>>('/training-records', params)),
+
+  createRecord: (data: Partial<TrainingRecord>) => apiClient.post<TrainingRecord>('/training-records', data),
+
+  updateRecord: (id: string, data: Partial<TrainingRecord>) => apiClient.put<TrainingRecord>(`/training-records/${id}`, data),
+
+  deleteRecord: (id: string) => apiClient.delete(`/training-records/${id}`),
+
+  getExpiringSoon: () => apiClient.get<TrainingRecord[]>('/training-records/expiring-soon'),
+}
+
+// ==================== Payroll API ====================
+export const payrollApi = {
+  getSalaryStructures: async (params?: { employeeId?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<SalaryStructure>>('/salary-structures', params)),
+
+  createSalaryStructure: (data: Partial<SalaryStructure>) =>
+    apiClient.post<SalaryStructure>('/salary-structures', data),
+
+  updateSalaryStructure: (id: string, data: Partial<SalaryStructure>) =>
+    apiClient.put<SalaryStructure>(`/salary-structures/${id}`, data),
+
+  deleteSalaryStructure: (id: string) => apiClient.delete(`/salary-structures/${id}`),
+
+  getPayrolls: async (params?: { page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<Payroll>>('/payrolls', params)),
+
+  getPayroll: (id: string) => apiClient.get<Payroll & { items: PayrollItem[] }>(`/payrolls/${id}`),
+
+  createPayroll: (data: { month: number; year: number }) => apiClient.post<Payroll>('/payrolls', data),
+
+  calculatePayroll: (id: string) => apiClient.post<Payroll>(`/payrolls/${id}/calculate`, {}),
+
+  approvePayroll: (id: string) => apiClient.post<Payroll>(`/payrolls/${id}/approve`, {}),
+
+  payPayroll: (id: string) => apiClient.post<Payroll>(`/payrolls/${id}/pay`, {}),
+
+  updatePayrollItem: (payrollId: string, itemId: string, data: Partial<PayrollItem>) =>
+    apiClient.put<PayrollItem>(`/payrolls/${payrollId}/items/${itemId}`, data),
 }

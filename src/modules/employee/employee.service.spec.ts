@@ -112,6 +112,6 @@ describe('EmployeeService', () => {
     const { service, prisma } = setup();
     prisma.employee.findUnique.mockResolvedValue(null);
 
-    await expect(service.getEmployeeById('missing')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.getEmployeeById({ id: 'u1', role: 'ADMIN' } as never, 'missing')).rejects.toBeInstanceOf(NotFoundException);
   });
 });

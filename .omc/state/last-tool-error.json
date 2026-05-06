@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"export DATABASE_URL=\\\"postgresql://postgres:postgres@localhost:5432/employee_management_system?schema=public\\\" && npx prisma migrate dev --name add_rbac_permissions\",\"timeout\":120000,\"desc...",
-  "error": "Exit code 1\nPrisma schema loaded from prisma/schema.prisma\nDatasource \"db\": PostgreSQL database \"employee_management_system\", schema \"public\" at \"localhost:5432\"\n\nError: P1010: User `postgres` was denied access on the database `employee_management_system.public`",
-  "timestamp": "2026-05-06T17:01:29.978Z",
+  "tool_input_preview": "{\"command\":\"mkdir -p /Users/n0x/WebStorm/htql/employee-management-system/frontend/app/(protected)/payrolls\",\"description\":\"Create payrolls directory\"}",
+  "error": "Exit code 1\n(eval):1: no matches found: /Users/n0x/WebStorm/htql/employee-management-system/frontend/app/(protected)/payrolls",
+  "timestamp": "2026-05-06T17:29:04.041Z",
   "retry_count": 3
 }

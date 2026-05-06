@@ -10,7 +10,8 @@ describe('Schedule Summary Benchmark', () => {
       },
     };
     const auditService = { log: jest.fn() };
-    const service = new ScheduleService(prisma as never, auditService as never);
+    const leaveService = {} as never;
+    const service = new ScheduleService(prisma as never, auditService as never, leaveService);
     return { service, prisma };
   }
 

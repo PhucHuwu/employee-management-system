@@ -1,6 +1,7 @@
-import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, RevenueType } from '@prisma/client';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, RevenueType, Role } from '@prisma/client';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
+import { AuthUser } from '@/modules/identity/auth-user.type';
 import { AddProjectMemberDto } from '../dto/add-project-member.dto';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { CreateRevenueDto } from '../dto/create-revenue.dto';
@@ -41,7 +42,7 @@ export class ProjectService {
     }
   }
 
-  async listProjects(query: ProjectQueryDto) {
+  async listProjects(user: AuthUser, query: ProjectQueryDto) {
     const where: Prisma.ProjectWhereInput = {};
 
     if (query.status) {
@@ -54,6 +55,19 @@ export class ProjectService {
         { code: { contains: keyword, mode: 'insensitive' } },
         { name: { contains: keyword, mode: 'insensitive' } },
       ];
+    }
+
+    if (user.role === Role.MANAGER && (user.projectScopeIds ?? []).length > 0) {
+      where.id = { in: user.projectScopeIds ?? [] };
+    }
+
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      where.members = {
+        some: {
+          employeeId: user.employeeId,
+          leftAt: null,
+        },
+      };
     }
 
     const skip = (query.page - 1) * query.size;
@@ -86,7 +100,7 @@ export class ProjectService {
     };
   }
 
-  async getProjectById(projectId: string) {
+  async getProjectById(user: AuthUser, projectId: string) {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
       include: {
@@ -112,6 +126,25 @@ export class ProjectService {
 
     if (!project) {
       throw new NotFoundException('project not found');
+    }
+
+    if (user.role === Role.MANAGER && (user.projectScopeIds ?? []).length > 0) {
+      if (!user.projectScopeIds!.includes(projectId)) {
+        throw new ForbiddenException('Project scope violation');
+      }
+    }
+
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      const membership = await this.prisma.projectMember.findFirst({
+        where: {
+          projectId,
+          employeeId: user.employeeId,
+          leftAt: null,
+        },
+      });
+      if (!membership) {
+        throw new ForbiddenException('You do not have access to this project');
+      }
     }
 
     return project;

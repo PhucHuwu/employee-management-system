@@ -14,6 +14,7 @@ import {
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { AuditService } from '@/modules/audit/audit.service';
 import { AuthUser } from '@/modules/identity/auth-user.type';
+import { LeaveService } from '@/modules/leave/leave.service';
 import { DailyDrilldownQueryDto } from './dto/daily-drilldown-query.dto';
 import { DailySummaryQueryDto } from './dto/daily-summary-query.dto';
 import { ScheduleRequestQueryDto } from './dto/schedule-request-query.dto';
@@ -37,6 +38,7 @@ export class ScheduleService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly leaveService: LeaveService,
   ) {}
 
   async getScheduleRequests(
@@ -46,10 +48,18 @@ export class ScheduleService {
     const page = query.page;
     const size = query.size;
 
+    const effectiveEmployeeId = user.role === Role.EMPLOYEE && user.employeeId
+      ? user.employeeId
+      : query.employeeId;
+
+    if (effectiveEmployeeId) {
+      await this.assertCanAccessEmployee(user, effectiveEmployeeId);
+    }
+
     const where: Prisma.ScheduleRequestWhereInput = {
       status: query.status ?? ScheduleRequestStatus.PENDING,
       requestType: query.type,
-      employeeId: query.employeeId,
+      employeeId: effectiveEmployeeId,
       requestDate: this.buildDateRangeFilter(query.from, query.to),
       employee: this.buildEmployeeScopeFilter(user),
     };
@@ -136,6 +146,19 @@ export class ScheduleService {
           where: { id: request.employeeId },
           data: { fixedSchedule: request.requestedSchedule },
         });
+      }
+
+      if (
+        request.requestType === ScheduleRequestType.OFF_FULL_DAY ||
+        request.requestType === ScheduleRequestType.OFF_AM ||
+        request.requestType === ScheduleRequestType.OFF_PM
+      ) {
+        await this.leaveService.deductLeaveOnApproval(
+          tx,
+          request.employeeId,
+          request.requestType,
+          request.requestDate,
+        );
       }
 
       return approvedRequest;
@@ -327,6 +350,10 @@ export class ScheduleService {
       return {};
     }
 
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      return { id: user.employeeId };
+    }
+
     const scopeFilter: Prisma.EmployeeWhereInput = {};
 
     if (user.departmentScopeId) {
@@ -361,6 +388,13 @@ export class ScheduleService {
 
   private async assertCanAccessEmployee(user: AuthUser, employeeId: string): Promise<void> {
     if (user.role === Role.ADMIN) {
+      return;
+    }
+
+    if (user.role === Role.EMPLOYEE && user.employeeId) {
+      if (employeeId !== user.employeeId) {
+        throw new ForbiddenException('You do not have permission for this employee');
+      }
       return;
     }
 

@@ -97,7 +97,7 @@ describe('Project Module Integration', () => {
     expect(created.id).toBe(projectFixtures.ids.projectA);
 
     prisma.$transaction.mockResolvedValue([[{ id: projectFixtures.ids.projectA }], 1]);
-    const list = await projectService.listProjects({ page: 1, size: 20, status: ProjectStatus.RUNNING });
+    const list = await projectService.listProjects({ id: 'u1', role: 'ADMIN' } as never, { page: 1, size: 20, status: ProjectStatus.RUNNING });
     expect(list.pagination.total).toBe(1);
 
     prisma.project.findUnique.mockResolvedValue({ id: projectFixtures.ids.projectA });

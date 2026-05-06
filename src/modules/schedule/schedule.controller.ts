@@ -7,10 +7,9 @@ import {
   Query,
   Body,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { CurrentUser } from '@/modules/identity/decorators/current-user.decorator';
 import { AuthUser } from '@/modules/identity/auth-user.type';
-import { Roles } from '@/modules/identity/decorators/roles.decorator';
+import { Permissions } from '@/modules/identity/decorators/permissions.decorator';
 import { DailyDrilldownQueryDto } from './dto/daily-drilldown-query.dto';
 import { DailySummaryQueryDto } from './dto/daily-summary-query.dto';
 import { RejectScheduleRequestDto } from './dto/reject-schedule-request.dto';
@@ -18,11 +17,11 @@ import { ScheduleRequestQueryDto } from './dto/schedule-request-query.dto';
 import { ScheduleService } from './schedule.service';
 
 @Controller()
-@Roles(Role.ADMIN, Role.MANAGER)
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
   @Get('schedule-requests')
+  @Permissions({ resource: 'schedule-request', action: 'read' })
   getScheduleRequests(
     @CurrentUser() user: AuthUser,
     @Query() query: ScheduleRequestQueryDto,
@@ -31,6 +30,7 @@ export class ScheduleController {
   }
 
   @Post('schedule-requests/:id/approve')
+  @Permissions({ resource: 'schedule-request', action: 'approve' })
   approveRequest(
     @CurrentUser() user: AuthUser,
     @Param('id', new ParseUUIDPipe()) requestId: string,
@@ -39,6 +39,7 @@ export class ScheduleController {
   }
 
   @Post('schedule-requests/:id/reject')
+  @Permissions({ resource: 'schedule-request', action: 'reject' })
   rejectRequest(
     @CurrentUser() user: AuthUser,
     @Param('id', new ParseUUIDPipe()) requestId: string,
@@ -48,6 +49,7 @@ export class ScheduleController {
   }
 
   @Get('schedules/daily-summary')
+  @Permissions({ resource: 'schedule-request', action: 'read' })
   getDailySummary(
     @CurrentUser() user: AuthUser,
     @Query() query: DailySummaryQueryDto,
@@ -56,6 +58,7 @@ export class ScheduleController {
   }
 
   @Get('schedules/daily-drilldown')
+  @Permissions({ resource: 'schedule-request', action: 'read' })
   getDailyDrilldown(
     @CurrentUser() user: AuthUser,
     @Query() query: DailyDrilldownQueryDto,

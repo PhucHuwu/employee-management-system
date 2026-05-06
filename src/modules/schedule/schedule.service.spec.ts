@@ -51,7 +51,9 @@ describe('ScheduleService', () => {
       return arg;
     });
 
-    const service = new ScheduleService(prisma as never, auditService as never);
+    const leaveService = {} as never;
+
+    const service = new ScheduleService(prisma as never, auditService as never, leaveService);
     return { service, prisma, auditService, tx };
   }
 

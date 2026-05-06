@@ -14,6 +14,7 @@ export const clearAllData = async (ctx: SeedContext): Promise<void> => {
   await prisma.customer.deleteMany()
   await prisma.project.deleteMany()
   await prisma.employee.deleteMany()
+  await prisma.permission.deleteMany()
   await prisma.userAccount.deleteMany()
   await prisma.jobTitle.deleteMany()
   await prisma.position.deleteMany()

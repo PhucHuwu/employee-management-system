@@ -8,9 +8,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { CurrentUser } from '@/modules/identity/decorators/current-user.decorator';
-import { Roles } from '@/modules/identity/decorators/roles.decorator';
+import { Permissions } from '@/modules/identity/decorators/permissions.decorator';
 import { AuthUser } from '@/modules/identity/auth-user.type';
 import { BulkUpdateEmployeePositionDto } from './dto/bulk-update-employee-position.dto';
 import { CreatePositionDto } from './dto/create-position.dto';
@@ -19,21 +18,23 @@ import { UpdatePositionDto } from './dto/update-position.dto';
 import { PositionService } from './position.service';
 
 @Controller('positions')
-@Roles(Role.ADMIN, Role.MANAGER)
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}
 
   @Get()
+  @Permissions({ resource: 'position', action: 'read' })
   listPositions() {
     return this.positionService.listPositions();
   }
 
   @Post()
+  @Permissions({ resource: 'position', action: 'create' })
   createPosition(@Body() dto: CreatePositionDto) {
     return this.positionService.createPosition(dto);
   }
 
   @Put(':id')
+  @Permissions({ resource: 'position', action: 'update' })
   updatePosition(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
@@ -43,11 +44,13 @@ export class PositionController {
   }
 
   @Delete(':id')
+  @Permissions({ resource: 'position', action: 'delete' })
   deletePosition(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.positionService.deletePosition(user, id);
   }
 
   @Put('employees/:employeeId')
+  @Permissions({ resource: 'employee', action: 'update' })
   updateEmployeePosition(
     @CurrentUser() user: AuthUser,
     @Param('employeeId', ParseUUIDPipe) employeeId: string,
@@ -57,6 +60,7 @@ export class PositionController {
   }
 
   @Put('employees/bulk')
+  @Permissions({ resource: 'employee', action: 'update' })
   bulkUpdateEmployeePosition(
     @CurrentUser() user: AuthUser,
     @Body() dto: BulkUpdateEmployeePositionDto,

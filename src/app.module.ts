@@ -11,6 +11,10 @@ import { JobTitleModule } from './modules/job-title/job-title.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { LeaveModule } from './modules/leave/leave.module';
+import { TrainingModule } from './modules/training/training.module';
+import { RecruitmentModule } from './modules/recruitment/recruitment.module';
+import { PayrollModule } from './modules/payroll/payroll.module';
 import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { AppConfigService } from './config/app-config.service';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -30,6 +34,10 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     DepartmentModule,
     AuditModule,
     AnalyticsModule,
+    LeaveModule,
+    TrainingModule,
+    RecruitmentModule,
+    PayrollModule,
   ],
   providers: [AppConfigService],
 })

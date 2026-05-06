@@ -10,6 +10,11 @@ export const breadcrumbMap: Record<string, string> = {
   'job-titles': 'Chức danh',
   'audit-logs': 'Audit Logs',
   departments: 'Phòng ban',
+  'leave-balances': 'Ngày phép',
+  recruitment: 'Tuyển dụng',
+  training: 'Đào tạo',
+  payrolls: 'Lương',
+  'salary-structures': 'Cơ cấu lương',
 }
 
 export function buildBreadcrumbItems(pathname: string): Array<{ label: string; href?: string }> {
