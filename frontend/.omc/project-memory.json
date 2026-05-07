@@ -1,0 +1,169 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778121090058,
+  "projectRoot": "/Users/n0x/WebStorm/htql/employee-management-system/frontend",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.2.0",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.4",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.4",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "cd /Users/n0x/WebStorm/htql/employee-management-system/frontend && npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "eslint ."
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "lib",
+      "public"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 3,
+      "lastAccessed": 1778121090047,
+      "keyFiles": [
+        "globals.css",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 3,
+      "lastAccessed": 1778121090047,
+      "keyFiles": [
+        "app-sidebar.tsx",
+        "providers.tsx",
+        "theme-provider.tsx"
+      ]
+    },
+    "hooks": {
+      "path": "hooks",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1778121090048,
+      "keyFiles": [
+        "use-mobile.ts",
+        "use-toast.ts"
+      ]
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 4,
+      "lastAccessed": 1778121090048,
+      "keyFiles": [
+        "auth-context.tsx",
+        "breadcrumb-map.ts",
+        "types.ts",
+        "utils.ts"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 4,
+      "lastAccessed": 1778121090048,
+      "keyFiles": [
+        "apple-icon.png",
+        "icon-dark-32x32.png",
+        "icon-light-32x32.png",
+        "icon.svg"
+      ]
+    },
+    "styles": {
+      "path": "styles",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778121090048,
+      "keyFiles": [
+        "globals.css"
+      ]
+    },
+    "lib/api": {
+      "path": "lib/api",
+      "purpose": "API routes",
+      "fileCount": 2,
+      "lastAccessed": 1778121090048,
+      "keyFiles": [
+        "client.ts",
+        "endpoints.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "components/app-sidebar.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778122240654,
+      "type": "file"
+    },
+    {
+      "path": "lib/breadcrumb-map.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778122257453,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

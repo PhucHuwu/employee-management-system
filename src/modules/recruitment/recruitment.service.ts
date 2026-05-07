@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, Role, JobRequisitionStatus, CandidateStatus, InterviewResult } from '@prisma/client';
+import { Prisma, Role, JobRequisitionStatus, CandidateStatus, InterviewResult, RequisitionType } from '@prisma/client';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { AuditService } from '@/modules/audit/audit.service';
 import { AuthUser } from '@/modules/identity/auth-user.type';
@@ -32,8 +32,11 @@ export class RecruitmentService {
       salaryMin: dto.salaryMin ? new Prisma.Decimal(dto.salaryMin) : undefined,
       salaryMax: dto.salaryMax ? new Prisma.Decimal(dto.salaryMax) : undefined,
       status: dto.status ?? JobRequisitionStatus.DRAFT,
+      type: dto.type ?? RequisitionType.STAFF,
       requestedBy: dto.requestedBy,
       openedAt: dto.status === JobRequisitionStatus.OPEN ? new Date() : undefined,
+      position: dto.positionId ? { connect: { id: dto.positionId } } : undefined,
+      subPosition: dto.subPositionId ? { connect: { id: dto.subPositionId } } : undefined,
     };
 
     const created = await this.prisma.jobRequisition.create({ data });
@@ -110,6 +113,9 @@ export class RecruitmentService {
       salaryMin: dto.salaryMin !== undefined ? new Prisma.Decimal(dto.salaryMin) : undefined,
       salaryMax: dto.salaryMax !== undefined ? new Prisma.Decimal(dto.salaryMax) : undefined,
       status: dto.status,
+      type: dto.type,
+      position: dto.positionId === undefined ? undefined : dto.positionId ? { connect: { id: dto.positionId } } : { disconnect: true },
+      subPosition: dto.subPositionId === undefined ? undefined : dto.subPositionId ? { connect: { id: dto.subPositionId } } : { disconnect: true },
     };
 
     if (dto.status === JobRequisitionStatus.OPEN && existing.status !== JobRequisitionStatus.OPEN) {
@@ -169,10 +175,16 @@ export class RecruitmentService {
         email: dto.email.trim().toLowerCase(),
         phone: dto.phone?.trim(),
         resumeUrl: dto.resumeUrl?.trim(),
+        cvUrl: dto.cvUrl?.trim(),
+        avatarUrl: dto.avatarUrl?.trim(),
         source: dto.source?.trim(),
-        status: dto.status ?? CandidateStatus.APPLIED,
+        status: dto.status ?? CandidateStatus.NEW,
         notes: dto.notes?.trim(),
         jobRequisitionId: dto.jobRequisitionId,
+        educationId: dto.educationId,
+        branchId: dto.branchId,
+        cvSourceId: dto.cvSourceId,
+        assignTo: dto.assignTo,
       },
     });
 
@@ -258,14 +270,20 @@ export class RecruitmentService {
           email: dto.email?.trim().toLowerCase(),
           phone: dto.phone?.trim(),
           resumeUrl: dto.resumeUrl?.trim(),
+          cvUrl: dto.cvUrl?.trim(),
+          avatarUrl: dto.avatarUrl?.trim(),
           source: dto.source?.trim(),
           status: dto.status,
           notes: dto.notes?.trim(),
           jobRequisitionId: dto.jobRequisitionId,
+          educationId: dto.educationId,
+          branchId: dto.branchId,
+          cvSourceId: dto.cvSourceId,
+          assignTo: dto.assignTo,
         },
       });
 
-      if (dto.status === CandidateStatus.HIRED && existing.status !== CandidateStatus.HIRED) {
+      if (dto.status === CandidateStatus.ONBOARDED && existing.status !== CandidateStatus.ONBOARDED) {
         await tx.jobRequisition.update({
           where: { id: candidate.jobRequisitionId },
           data: { status: JobRequisitionStatus.FILLED, closedAt: new Date() },
@@ -284,13 +302,13 @@ export class RecruitmentService {
       newData: updated,
     });
 
-    if (dto.status === CandidateStatus.HIRED && existing.status !== CandidateStatus.HIRED) {
+    if (dto.status === CandidateStatus.ONBOARDED && existing.status !== CandidateStatus.ONBOARDED) {
       await this.auditService.log({
         actor: this.toAuditActor(user),
-        action: 'CANDIDATE_HIRED',
+        action: 'CANDIDATE_ONBOARDED',
         entityType: 'CANDIDATE',
         entityId: id,
-        newData: { status: CandidateStatus.HIRED },
+        newData: { status: CandidateStatus.ONBOARDED },
       });
     }
 
@@ -443,18 +461,18 @@ export class RecruitmentService {
           select: { status: true },
         });
 
-        if (candidate && candidate.status !== CandidateStatus.OFFERED && candidate.status !== CandidateStatus.HIRED) {
+        if (candidate && candidate.status !== CandidateStatus.ACCEPTED_OFFER && candidate.status !== CandidateStatus.ONBOARDED) {
           await this.prisma.candidate.update({
             where: { id: existing.candidateId },
-            data: { status: CandidateStatus.OFFERED },
+            data: { status: CandidateStatus.ACCEPTED_OFFER },
           });
 
           await this.auditService.log({
             actor: this.toAuditActor(user),
-            action: 'CANDIDATE_OFFERED',
+            action: 'CANDIDATE_ACCEPTED_OFFER',
             entityType: 'CANDIDATE',
             entityId: existing.candidateId,
-            newData: { status: CandidateStatus.OFFERED },
+            newData: { status: CandidateStatus.ACCEPTED_OFFER },
           });
         }
       }
@@ -481,6 +499,98 @@ export class RecruitmentService {
     });
 
     return { deleted: true };
+  }
+
+  async assignCandidateToRequisition(user: AuthUser, candidateId: string, jobRequisitionId: string) {
+    const candidate = await this.prisma.candidate.findUnique({ where: { id: candidateId } });
+    if (!candidate) throw new NotFoundException('Candidate not found');
+    await this.assertJobRequisitionExists(jobRequisitionId);
+
+    const updated = await this.prisma.candidate.update({
+      where: { id: candidateId },
+      data: { jobRequisitionId },
+    });
+
+    await this.auditService.log({
+      actor: this.toAuditActor(user),
+      action: 'CANDIDATE_ASSIGNED_TO_REQUISITION',
+      entityType: 'CANDIDATE',
+      entityId: candidateId,
+      newData: { jobRequisitionId },
+    });
+
+    return updated;
+  }
+
+  async closeRequisition(user: AuthUser, id: string) {
+    const existing = await this.prisma.jobRequisition.findUnique({
+      where: { id },
+      include: { candidates: { select: { id: true, status: true } } },
+    });
+
+    if (!existing) throw new NotFoundException('Job requisition not found');
+
+    const terminalStatuses: CandidateStatus[] = [
+      CandidateStatus.FAILED_TEST,
+      CandidateStatus.FAILED_INTERVIEW,
+      CandidateStatus.REJECTED_INTERVIEW,
+      CandidateStatus.REJECTED_OFFER,
+      CandidateStatus.ONBOARDED,
+      CandidateStatus.REJECTED_TEST,
+      CandidateStatus.REJECTED_APPLY,
+    ];
+
+    const activeCandidates = existing.candidates.filter((c) => !terminalStatuses.includes(c.status));
+    if (activeCandidates.length > 0) {
+      throw new BadRequestException('Cannot close requisition with active candidates');
+    }
+
+    const updated = await this.prisma.jobRequisition.update({
+      where: { id },
+      data: { status: JobRequisitionStatus.CLOSED, closedAt: new Date() },
+    });
+
+    await this.auditService.log({
+      actor: this.toAuditActor(user),
+      action: 'JOB_REQUISITION_CLOSED',
+      entityType: 'JOB_REQUISITION',
+      entityId: id,
+      oldData: existing,
+      newData: updated,
+    });
+
+    return updated;
+  }
+
+  async cloneRequisition(user: AuthUser, id: string) {
+    const existing = await this.prisma.jobRequisition.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Job requisition not found');
+
+    const cloned = await this.prisma.jobRequisition.create({
+      data: {
+        title: `${existing.title} (Clone)`,
+        description: existing.description,
+        department: existing.department,
+        location: existing.location,
+        salaryMin: existing.salaryMin,
+        salaryMax: existing.salaryMax,
+        status: JobRequisitionStatus.DRAFT,
+        type: existing.type,
+        requestedBy: user.id,
+        positionId: existing.positionId,
+        subPositionId: existing.subPositionId,
+      },
+    });
+
+    await this.auditService.log({
+      actor: this.toAuditActor(user),
+      action: 'JOB_REQUISITION_CLONED',
+      entityType: 'JOB_REQUISITION',
+      entityId: cloned.id,
+      newData: cloned,
+    });
+
+    return cloned;
   }
 
   // ─── Helpers ───

@@ -3,9 +3,10 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
 } from 'class-validator';
-import { JobRequisitionStatus } from '@prisma/client';
+import { JobRequisitionStatus, RequisitionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 
 export class UpdateJobRequisitionDto {
@@ -41,4 +42,16 @@ export class UpdateJobRequisitionDto {
   @IsEnum(JobRequisitionStatus)
   @IsOptional()
   status?: JobRequisitionStatus;
+
+  @IsEnum(RequisitionType)
+  @IsOptional()
+  type?: RequisitionType;
+
+  @IsUUID()
+  @IsOptional()
+  positionId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  subPositionId?: string;
 }

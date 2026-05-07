@@ -24,6 +24,13 @@ import {
   Receipt,
   Banknote,
   TrendingUp,
+  Database,
+  Brain,
+  ClipboardList,
+  Clock,
+  UsersRound,
+  Settings,
+  CalendarDays,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -189,6 +196,127 @@ const allMenuItems: SidebarEntry[] = [
     url: '/accounts-receivable',
     icon: TrendingUp,
     roles: ['Admin', 'Manager'],
+  },
+  {
+    title: 'Master Data',
+    icon: Database,
+    roles: ['Admin'],
+    items: [
+      {
+        title: 'Chi nhánh',
+        url: '/branches',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Loại học vấn',
+        url: '/education-types',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Học vấn',
+        url: '/educations',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Kỹ năng',
+        url: '/skills',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Nguồn CV',
+        url: '/cv-sources',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Vị trí phụ',
+        url: '/sub-positions',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Cài đặt vị trí',
+        url: '/position-settings',
+        roles: ['Admin'],
+      },
+    ],
+  },
+  {
+    title: 'Năng lực & Đánh giá',
+    icon: Brain,
+    roles: ['Admin'],
+    items: [
+      {
+        title: 'Tiêu chí năng lực',
+        url: '/capabilities',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Cài đặt năng lực',
+        url: '/capability-settings',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Thang điểm',
+        url: '/score-settings',
+        roles: ['Admin'],
+      },
+    ],
+  },
+  {
+    title: 'Timesheet',
+    icon: ClipboardList,
+    roles: ['Admin', 'Manager', 'Employee'],
+    items: [
+      {
+        title: 'Log timesheet',
+        url: '/timesheet-entries',
+        roles: ['Admin', 'Manager', 'Employee'],
+      },
+      {
+        title: 'Duyệt timesheet',
+        url: '/timesheet-approvals',
+        roles: ['Admin', 'Manager'],
+      },
+    ],
+  },
+  {
+    title: 'Review Intern',
+    url: '/review-interns',
+    icon: UsersRound,
+    roles: ['Admin', 'Manager'],
+  },
+  {
+    title: 'Team Building',
+    url: '/team-building-requests',
+    icon: CalendarDays,
+    roles: ['Admin', 'Manager'],
+  },
+  {
+    title: 'Đăng ký giờ làm',
+    url: '/working-time-requests',
+    icon: Clock,
+    roles: ['Admin', 'Manager', 'Employee'],
+  },
+  {
+    title: 'Cấu hình',
+    icon: Settings,
+    roles: ['Admin'],
+    items: [
+      {
+        title: 'Loại nghỉ phép',
+        url: '/leave-types',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Ngày nghỉ lễ',
+        url: '/off-days',
+        roles: ['Admin'],
+      },
+      {
+        title: 'Cài đặt hệ thống',
+        url: '/system-settings',
+        roles: ['Admin'],
+      },
+    ],
   },
   {
     title: 'Audit Logs',

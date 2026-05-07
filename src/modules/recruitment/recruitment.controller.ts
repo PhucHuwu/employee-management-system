@@ -66,6 +66,18 @@ class JobRequisitionController {
   remove(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.recruitmentService.deleteJobRequisition(user, id);
   }
+
+  @Post(':id/close')
+  @Permissions({ resource: 'job_requisition', action: 'update' })
+  close(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.recruitmentService.closeRequisition(user, id);
+  }
+
+  @Post(':id/clone')
+  @Permissions({ resource: 'job_requisition', action: 'create' })
+  clone(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.recruitmentService.cloneRequisition(user, id);
+  }
 }
 
 @Controller('candidates')
@@ -114,6 +126,16 @@ class CandidateController {
   @Permissions({ resource: 'candidate', action: 'delete' })
   remove(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.recruitmentService.deleteCandidate(user, id);
+  }
+
+  @Post(':id/assign-requisition')
+  @Permissions({ resource: 'candidate', action: 'update' })
+  assignRequisition(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('jobRequisitionId', ParseUUIDPipe) jobRequisitionId: string,
+  ) {
+    return this.recruitmentService.assignCandidateToRequisition(user, id, jobRequisitionId);
   }
 }
 

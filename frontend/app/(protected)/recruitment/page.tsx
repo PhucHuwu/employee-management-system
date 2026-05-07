@@ -81,7 +81,7 @@ export default function RecruitmentPage() {
     email: '',
     phone: '',
     jobRequisitionId: '',
-    status: 'APPLIED' as string,
+    status: 'NEW' as string,
     notes: '',
   })
   const [candidateDeleteOpen, setCandidateDeleteOpen] = useState(false)

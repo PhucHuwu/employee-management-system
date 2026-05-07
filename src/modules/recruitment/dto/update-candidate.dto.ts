@@ -29,6 +29,14 @@ export class UpdateCandidateDto {
 
   @IsString()
   @IsOptional()
+  cvUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
+
+  @IsString()
+  @IsOptional()
   @MaxLength(100)
   source?: string;
 
@@ -43,4 +51,20 @@ export class UpdateCandidateDto {
   @IsUUID()
   @IsOptional()
   jobRequisitionId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  educationId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  cvSourceId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  assignTo?: string;
 }

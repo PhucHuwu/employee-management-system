@@ -18,6 +18,26 @@ import { PayrollModule } from './modules/payroll/payroll.module';
 import { ProjectBudgetModule } from './modules/project-budget/project-budget.module';
 import { ExpenseClaimModule } from './modules/expense-claim/expense-claim.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
+import { BranchModule } from './modules/branch/branch.module';
+import { EducationTypeModule } from './modules/education-type/education-type.module';
+import { EducationModule } from './modules/education/education.module';
+import { SkillModule } from './modules/skill/skill.module';
+import { CapabilityModule } from './modules/capability/capability.module';
+import { CapabilitySettingModule } from './modules/capability-setting/capability-setting.module';
+import { ScoreSettingModule } from './modules/score-setting/score-setting.module';
+import { InterviewScheduleModule } from './modules/interview-schedule/interview-schedule.module';
+import { ProjectTaskModule } from './modules/project-task/project-task.module';
+import { TimesheetEntryModule } from './modules/timesheet-entry/timesheet-entry.module';
+import { ReviewInternModule } from './modules/review-intern/review-intern.module';
+import { TeamBuildingRequestModule } from './modules/team-building-request/team-building-request.module';
+import { WorkingTimeRequestModule } from './modules/working-time-request/working-time-request.module';
+import { SystemSettingModule } from './modules/system-setting/system-setting.module';
+import { LeaveTypeModule } from './modules/leave-type/leave-type.module';
+import { OffDayModule } from './modules/off-day/off-day.module';
+import { ProjectMemberShadowModule } from './modules/project-member-shadow/project-member-shadow.module';
+import { CvSourceModule } from './modules/cv-source/cv-source.module';
+import { SubPositionModule } from './modules/sub-position/sub-position.module';
+import { PositionSettingModule } from './modules/position-setting/position-setting.module';
 import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { AppConfigService } from './config/app-config.service';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -44,6 +64,26 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     ProjectBudgetModule,
     ExpenseClaimModule,
     InvoiceModule,
+    BranchModule,
+    EducationTypeModule,
+    EducationModule,
+    SkillModule,
+    CvSourceModule,
+    SubPositionModule,
+    PositionSettingModule,
+    CapabilityModule,
+    CapabilitySettingModule,
+    ScoreSettingModule,
+    InterviewScheduleModule,
+    ProjectTaskModule,
+    TimesheetEntryModule,
+    ReviewInternModule,
+    TeamBuildingRequestModule,
+    WorkingTimeRequestModule,
+    SystemSettingModule,
+    LeaveTypeModule,
+    OffDayModule,
+    ProjectMemberShadowModule,
   ],
   providers: [AppConfigService],
 })

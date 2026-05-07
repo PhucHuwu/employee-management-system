@@ -78,13 +78,24 @@ enum JobRequisitionStatus {
   CANCELLED
 }
 
+enum RequisitionType {
+  STAFF
+  INTERN
+}
+
 enum CandidateStatus {
-  APPLIED
-  SCREENING
-  INTERVIEW
-  OFFERED
-  HIRED
-  REJECTED
+  NEW
+  SCHEDULED_TEST
+  FAILED_TEST
+  REJECTED_TEST
+  SCHEDULED_INTERVIEW
+  PASSED_INTERVIEW
+  FAILED_INTERVIEW
+  REJECTED_INTERVIEW
+  ACCEPTED_OFFER
+  REJECTED_OFFER
+  ONBOARDED
+  REJECTED_APPLY
 }
 
 enum InterviewResult {
@@ -99,6 +110,38 @@ enum PayrollStatus {
   PENDING
   APPROVED
   PAID
+}
+
+enum TimesheetEntryStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReviewInternStatus {
+  DRAFT
+  REVIEWED
+  APPROVED
+  REJECTED
+}
+
+enum TeamBuildingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum WorkingTimeTemplate {
+  SHIFT_8_5
+  SHIFT_9_6
+}
+
+enum WorkingTimeStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 model Department {
@@ -117,7 +160,11 @@ model Position {
   active      Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  employees   Employee[]
+  employees           Employee[]
+  subPositions        SubPosition[]
+  capabilitySettings  CapabilitySetting[]
+  scoreSettings       ScoreSetting[]
+  jobRequisitions     JobRequisition[]
 }
 
 model JobTitle {
@@ -162,8 +209,10 @@ model Employee {
   deletedAt        DateTime?              @map("deleted_at")
   departmentId     String                 @map("department_id") @db.Uuid
   positionId       String                 @map("position_id") @db.Uuid
+  branchId         String?                @map("branch_id") @db.Uuid
   department       Department             @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   position         Position               @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  branch           Branch?                @relation(fields: [branchId], references: [id], onDelete: SetNull)
   dailyReports     DailyReport[]
   scheduleRequests ScheduleRequest[]
   projectMembers   ProjectMember[]
@@ -174,6 +223,15 @@ model Employee {
   salaryStructures SalaryStructure[]
   payrollItems     PayrollItem[]
   expenseClaims    ExpenseClaim[]
+  employeeSkills   EmployeeSkill[]
+  interviewSchedules InterviewSchedule[] @relation("InterviewScheduleInterviewers")
+  timesheetEntries TimesheetEntry[]
+  internReviews    ReviewIntern[] @relation("InternReviews")
+  reviewerReviews  ReviewIntern[] @relation("ReviewerReviews")
+  teamBuildingRequests TeamBuildingRequest[]
+  teamBuildingParticipants TeamBuildingParticipant[]
+  workingTimeRequests WorkingTimeRequest[]
+  shadowTargets    ProjectMemberShadow[] @relation(name: "ShadowTargetEmployee")
   userAccount      UserAccount?
 
   @@index([departmentId, positionId])
@@ -233,6 +291,9 @@ model Project {
   budgets       ProjectBudget[]
   expenseClaims ExpenseClaim[]
   invoices      Invoice[]
+  projectTasks  ProjectTask[]
+  timesheetEntries TimesheetEntry[]
+  teamBuildingRequests TeamBuildingRequest[]
 
   @@map("projects")
 }
@@ -246,6 +307,7 @@ model ProjectMember {
   employeeId    String    @map("employee_id") @db.Uuid
   project       Project   @relation(fields: [projectId], references: [id], onDelete: Restrict)
   employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  shadows       ProjectMemberShadow[]
 
   @@unique([projectId, employeeId])
   @@map("project_members")
@@ -397,11 +459,16 @@ model JobRequisition {
   salaryMin     Decimal?             @map("salary_min") @db.Decimal(18, 2)
   salaryMax     Decimal?             @map("salary_max") @db.Decimal(18, 2)
   status        JobRequisitionStatus @default(DRAFT)
+  type          RequisitionType?     @default(STAFF)
   requestedBy   String               @map("requested_by") @db.Uuid
   openedAt      DateTime?            @map("opened_at")
   closedAt      DateTime?            @map("closed_at")
   createdAt     DateTime             @default(now()) @map("created_at")
   updatedAt     DateTime             @updatedAt @map("updated_at")
+  positionId    String?              @map("position_id") @db.Uuid
+  subPositionId String?              @map("sub_position_id") @db.Uuid
+  position      Position?            @relation(fields: [positionId], references: [id], onDelete: SetNull)
+  subPosition   SubPosition?         @relation(fields: [subPositionId], references: [id], onDelete: SetNull)
   candidates    Candidate[]
 
   @@map("job_requisitions")
@@ -413,15 +480,26 @@ model Candidate {
   email            String          @db.VarChar(255)
   phone            String?         @db.VarChar(50)
   resumeUrl        String?         @map("resume_url")
+  cvUrl            String?         @map("cv_url")
+  avatarUrl        String?         @map("avatar_url")
   source           String?         @db.VarChar(100)
-  status           CandidateStatus @default(APPLIED)
+  status           CandidateStatus @default(NEW)
   appliedAt        DateTime        @default(now()) @map("applied_at")
   notes            String?
+  assignTo         String?         @map("assign_to") @db.Uuid
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime        @updatedAt @map("updated_at")
   jobRequisitionId String          @map("job_requisition_id") @db.Uuid
+  educationId      String?         @map("education_id") @db.Uuid
+  branchId         String?         @map("branch_id") @db.Uuid
+  cvSourceId       String?         @map("cv_source_id") @db.Uuid
   jobRequisition   JobRequisition  @relation(fields: [jobRequisitionId], references: [id], onDelete: Restrict)
+  education        Education?      @relation(fields: [educationId], references: [id], onDelete: SetNull)
+  branch           Branch?         @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  cvSource         CVSource?       @relation(fields: [cvSourceId], references: [id], onDelete: SetNull)
   interviews       Interview[]
+  interviewSchedules InterviewSchedule[]
+  candidateSkills  CandidateSkill[]
 
   @@map("candidates")
 }
@@ -440,6 +518,20 @@ model Interview {
   candidate   Candidate       @relation(fields: [candidateId], references: [id], onDelete: Restrict)
 
   @@map("interviews")
+}
+
+model InterviewSchedule {
+  id           String     @id @default(uuid()) @db.Uuid
+  scheduledAt  DateTime   @map("scheduled_at")
+  location     String?    @db.VarChar(255)
+  meetingLink  String?    @map("meeting_link")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  candidateId  String     @map("candidate_id") @db.Uuid
+  candidate    Candidate  @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  interviewers Employee[] @relation("InterviewScheduleInterviewers")
+
+  @@map("interview_schedules")
 }
 
 model TrainingPlan {
@@ -594,4 +686,338 @@ model InvoiceItem {
   invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
 
   @@map("invoice_items")
+}
+
+model Branch {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @unique @db.VarChar(255)
+  displayName String     @map("display_name") @db.VarChar(255)
+  color       String?    @db.VarChar(7)
+  address     String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  employees   Employee[]
+  candidates  Candidate[]
+
+  @@map("branches")
+}
+
+model EducationType {
+  id         String      @id @default(uuid()) @db.Uuid
+  name       String      @unique @db.VarChar(255)
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  educations Education[]
+
+  @@map("education_types")
+}
+
+model Education {
+  id              String        @id @default(uuid()) @db.Uuid
+  name            String        @db.VarChar(255)
+  color           String?       @db.VarChar(7)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  educationTypeId String        @map("education_type_id") @db.Uuid
+  educationType   EducationType @relation(fields: [educationTypeId], references: [id], onDelete: Restrict)
+  candidates      Candidate[]
+
+  @@map("educations")
+}
+
+model Skill {
+  id            String          @id @default(uuid()) @db.Uuid
+  name          String          @unique @db.VarChar(255)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  employeeSkills EmployeeSkill[]
+  candidateSkills CandidateSkill[]
+
+  @@map("skills")
+}
+
+model CVSource {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String      @unique @db.VarChar(255)
+  color       String?     @db.VarChar(7)
+  referenceTo String?     @map("reference_to")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  candidates  Candidate[]
+
+  @@map("cv_sources")
+}
+
+model SubPosition {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @db.VarChar(255)
+  color       String?    @db.VarChar(7)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  positionId       String           @map("position_id") @db.Uuid
+  position         Position         @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  positionSettings PositionSetting[]
+  jobRequisitions  JobRequisition[]
+
+  @@map("sub_positions")
+}
+
+model PositionSetting {
+  id            String       @id @default(uuid()) @db.Uuid
+  userType      String       @map("user_type") @db.VarChar(50)
+  lmsConfig     String?      @map("lms_config")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  subPositionId String       @map("sub_position_id") @db.Uuid
+  subPosition   SubPosition  @relation(fields: [subPositionId], references: [id], onDelete: Restrict)
+
+  @@map("position_settings")
+}
+
+model EmployeeSkill {
+  id         String   @id @default(uuid()) @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+  employeeId String   @map("employee_id") @db.Uuid
+  skillId    String   @map("skill_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  skill      Skill    @relation(fields: [skillId], references: [id], onDelete: Restrict)
+
+  @@unique([employeeId, skillId])
+  @@map("employee_skills")
+}
+
+model CandidateSkill {
+  id         String    @id @default(uuid()) @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at")
+  candidateId String   @map("candidate_id") @db.Uuid
+  skillId    String    @map("skill_id") @db.Uuid
+  candidate  Candidate @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  skill      Skill     @relation(fields: [skillId], references: [id], onDelete: Restrict)
+
+  @@unique([candidateId, skillId])
+  @@map("candidate_skills")
+}
+
+enum CapabilityType {
+  POINT
+  TEXT
+}
+
+model Capability {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  from      String?  @db.VarChar(255)
+  guideline String?
+  type      CapabilityType
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  items     CapabilitySettingItem[]
+  reviewInternDetails ReviewInternDetail[]
+
+  @@map("capabilities")
+}
+
+model CapabilitySetting {
+  id        String                  @id @default(uuid()) @db.Uuid
+  userType  String                  @map("user_type") @db.VarChar(50)
+  createdAt DateTime                @default(now()) @map("created_at")
+  updatedAt DateTime                @updatedAt @map("updated_at")
+  positionId String                 @map("position_id") @db.Uuid
+  position  Position                @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  items     CapabilitySettingItem[]
+
+  @@unique([userType, positionId])
+  @@map("capability_settings")
+}
+
+model CapabilitySettingItem {
+  id                   String            @id @default(uuid()) @db.Uuid
+  coefficient          Float             @default(1)
+  guideline            String?
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+  capabilitySettingId  String            @map("capability_setting_id") @db.Uuid
+  capabilityId         String            @map("capability_id") @db.Uuid
+  capabilitySetting    CapabilitySetting @relation(fields: [capabilitySettingId], references: [id], onDelete: Restrict)
+  capability           Capability        @relation(fields: [capabilityId], references: [id], onDelete: Restrict)
+
+  @@unique([capabilitySettingId, capabilityId])
+  @@map("capability_setting_items")
+}
+
+model ScoreSetting {
+  id         String   @id @default(uuid()) @db.Uuid
+  userType   String   @map("user_type") @db.VarChar(50)
+  scoreFrom  Float    @map("score_from")
+  scoreTo    Float    @map("score_to")
+  level      String   @db.VarChar(50)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  positionId String   @map("position_id") @db.Uuid
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Restrict)
+
+  @@unique([userType, positionId, scoreFrom, scoreTo])
+  @@map("score_settings")
+}
+
+model ProjectTask {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  code        String   @db.VarChar(100)
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  projectId   String   @map("project_id") @db.Uuid
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  timesheetEntries TimesheetEntry[]
+
+  @@index([projectId])
+  @@map("project_tasks")
+}
+
+model TimesheetEntry {
+  id                  String               @id @default(uuid()) @db.Uuid
+  entryDate           DateTime             @map("entry_date") @db.Date
+  normalWorkingTime   Float                @default(0) @map("normal_working_time")
+  overtime            Float                @default(0)
+  note                String?
+  status              TimesheetEntryStatus @default(DRAFT)
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  employeeId          String               @map("employee_id") @db.Uuid
+  projectId           String               @map("project_id") @db.Uuid
+  taskId              String               @map("task_id") @db.Uuid
+  employee            Employee             @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  project             Project              @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  task                ProjectTask          @relation(fields: [taskId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, entryDate])
+  @@index([projectId, entryDate])
+  @@map("timesheet_entries")
+}
+
+model ReviewIntern {
+  id          String             @id @default(uuid()) @db.Uuid
+  month       Int
+  year        Int
+  totalScore  Float?             @map("total_score")
+  level       String?            @db.VarChar(50)
+  status      ReviewInternStatus @default(DRAFT)
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  internId    String             @map("intern_id") @db.Uuid
+  reviewerId  String             @map("reviewer_id") @db.Uuid
+  intern      Employee           @relation(fields: [internId], references: [id], onDelete: Restrict, name: "InternReviews")
+  reviewer    Employee           @relation(fields: [reviewerId], references: [id], onDelete: Restrict, name: "ReviewerReviews")
+  details     ReviewInternDetail[]
+
+  @@unique([internId, month, year])
+  @@index([reviewerId, status])
+  @@map("review_interns")
+}
+
+model ReviewInternDetail {
+  id             String       @id @default(uuid()) @db.Uuid
+  score          Float?
+  comment        String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  reviewInternId String       @map("review_intern_id") @db.Uuid
+  capabilityId   String       @map("capability_id") @db.Uuid
+  reviewIntern   ReviewIntern @relation(fields: [reviewInternId], references: [id], onDelete: Restrict)
+  capability     Capability   @relation(fields: [capabilityId], references: [id], onDelete: Restrict)
+
+  @@unique([reviewInternId, capabilityId])
+  @@map("review_intern_details")
+}
+
+model TeamBuildingRequest {
+  id           String            @id @default(uuid()) @db.Uuid
+  note         String?
+  totalMoney   Decimal?          @map("total_money") @db.Decimal(18, 2)
+  attachmentUrl String?          @map("attachment_url")
+  status       TeamBuildingStatus @default(PENDING)
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  pmId         String            @map("pm_id") @db.Uuid
+  projectId    String            @map("project_id") @db.Uuid
+  pm           Employee          @relation(fields: [pmId], references: [id], onDelete: Restrict)
+  project      Project           @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  participants TeamBuildingParticipant[]
+
+  @@index([projectId, status])
+  @@map("team_building_requests")
+}
+
+model TeamBuildingParticipant {
+  id         String              @id @default(uuid()) @db.Uuid
+  createdAt  DateTime            @default(now()) @map("created_at")
+  requestId  String              @map("request_id") @db.Uuid
+  employeeId String              @map("employee_id") @db.Uuid
+  request    TeamBuildingRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  employee   Employee            @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([requestId, employeeId])
+  @@map("team_building_participants")
+}
+
+model WorkingTimeRequest {
+  id         String              @id @default(uuid()) @db.Uuid
+  template   WorkingTimeTemplate
+  status     WorkingTimeStatus   @default(PENDING)
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
+  employeeId String              @map("employee_id") @db.Uuid
+  employee   Employee            @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, status])
+  @@map("working_time_requests")
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique @db.VarChar(255)
+  value     String
+  category  String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("system_settings")
+}
+
+model LeaveType {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  color     String?  @db.VarChar(7)
+  isPaid    Boolean  @default(true) @map("is_paid")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("leave_types")
+}
+
+model OffDay {
+  id        String   @id @default(uuid()) @db.Uuid
+  offDate   DateTime @map("off_date") @db.Date
+  name      String   @db.VarChar(255)
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([offDate])
+  @@map("off_days")
+}
+
+model ProjectMemberShadow {
+  id               String      @id @default(uuid()) @db.Uuid
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  projectMemberId  String      @map("project_member_id") @db.Uuid
+  targetEmployeeId String      @map("target_employee_id") @db.Uuid
+  projectMember    ProjectMember @relation(fields: [projectMemberId], references: [id], onDelete: Restrict)
+  targetEmployee   Employee      @relation(fields: [targetEmployeeId], references: [id], onDelete: Restrict, name: "ShadowTargetEmployee")
+
+  @@unique([projectMemberId, targetEmployeeId])
+  @@map("project_member_shadows")
 }

@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"npm install\",\"timeout\":180000,\"description\":\"Install frontend dependencies\"}",
-  "error": "Exit code 1\nnpm error code ERESOLVE\nnpm error ERESOLVE could not resolve\nnpm error\nnpm error While resolving: eslint-config-next@16.2.1\nnpm error Found: eslint@8.57.1\nnpm error node_modules/eslint\nnpm error   dev eslint@\"^8.57.1\" from the root project\nnpm error   peer eslint@\"^6.0.0 || ^7.0.0 || >=8.0.0\" from @eslint-community/eslint-utils@4.9.1\nnpm error   node_modules/@eslint-community/eslint-utils\nnpm error     @eslint-community/eslint-utils@\"^4.9.1\" from @typescript-eslint/utils@8.57.2\nnpm e...",
-  "timestamp": "2026-05-06T16:54:03.983Z",
+  "tool_input_preview": "{\"command\":\"cd /Users/n0x/WebStorm/htql/employee-management-system && npm run build\",\"timeout\":120000,\"description\":\"Build backend with recruitment updates\"}",
+  "error": "Exit code 1\n\n> employee-management-system@0.1.0 build\n> nest build\n\n\u001b[96msrc/modules/recruitment/recruitment.service.ts\u001b[0m:\u001b[93m173\u001b[0m:\u001b[93m7\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS2322: \u001b[0mType '{ fullName: string; email: string; phone: string | undefined; resumeUrl: string | undefined; cvUrl: string | undefined; avatarUrl: string | undefined; source: string | undefined; ... 6 more ...; assignTo: string | undefined; }' is not assignable to type '(Without<CandidateCreateInput, CandidateUncheckedCreateIn...",
+  "timestamp": "2026-05-07T02:55:35.486Z",
   "retry_count": 1
 }

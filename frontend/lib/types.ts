@@ -373,8 +373,22 @@ export interface LeaveTransaction {
 
 // ==================== Recruitment ====================
 export type JobRequisitionStatus = 'DRAFT' | 'OPEN' | 'CLOSED' | 'FILLED' | 'CANCELLED'
-export type CandidateStatus = 'APPLIED' | 'SCREENING' | 'INTERVIEW' | 'OFFERED' | 'HIRED' | 'REJECTED'
+export type CandidateStatus =
+  | 'NEW'
+  | 'SCHEDULED_TEST'
+  | 'FAILED_TEST'
+  | 'REJECTED_TEST'
+  | 'SCHEDULED_INTERVIEW'
+  | 'PASSED_INTERVIEW'
+  | 'FAILED_INTERVIEW'
+  | 'REJECTED_INTERVIEW'
+  | 'ACCEPTED_OFFER'
+  | 'REJECTED_OFFER'
+  | 'ONBOARDED'
+  | 'REJECTED_APPLY'
 export type InterviewResult = 'PENDING' | 'PASSED' | 'FAILED' | 'NO_SHOW'
+
+export type RequisitionType = 'STAFF' | 'INTERN'
 
 export interface JobRequisition {
   id: string
@@ -385,11 +399,16 @@ export interface JobRequisition {
   salaryMin?: number
   salaryMax?: number
   status: JobRequisitionStatus
+  type?: RequisitionType
   requestedBy: string
   openedAt?: string
   closedAt?: string
   createdAt: string
   updatedAt: string
+  positionId?: string
+  position?: Position
+  subPositionId?: string
+  subPosition?: SubPosition
   _count?: { candidates?: number }
 }
 
@@ -399,6 +418,8 @@ export interface Candidate {
   email: string
   phone?: string
   resumeUrl?: string
+  cvUrl?: string
+  avatarUrl?: string
   source?: string
   status: CandidateStatus
   appliedAt: string
@@ -406,6 +427,13 @@ export interface Candidate {
   jobRequisitionId: string
   jobRequisition?: JobRequisition
   interviews?: Interview[]
+  educationId?: string
+  education?: Education
+  branchId?: string
+  branch?: Branch
+  cvSourceId?: string
+  cvSource?: CVSource
+  assignTo?: string
   createdAt: string
   updatedAt: string
 }
@@ -562,6 +590,261 @@ export interface Invoice {
   sentAt?: string
   paidAt?: string
   items?: InvoiceItem[]
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Master Data ====================
+export interface Branch {
+  id: string
+  name: string
+  displayName: string
+  color?: string
+  address?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface EducationType {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Education {
+  id: string
+  name: string
+  color?: string
+  educationTypeId: string
+  educationType?: EducationType
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Skill {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CVSource {
+  id: string
+  name: string
+  color?: string
+  referenceTo?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SubPosition {
+  id: string
+  name: string
+  color?: string
+  positionId: string
+  position?: Position
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PositionSetting {
+  id: string
+  userType: string
+  lmsConfig?: string
+  subPositionId: string
+  subPosition?: SubPosition
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Capability ====================
+export type CapabilityType = 'POINT' | 'TEXT'
+
+export interface Capability {
+  id: string
+  name: string
+  from?: string
+  guideline?: string
+  type: CapabilityType
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CapabilitySetting {
+  id: string
+  userType: string
+  positionId: string
+  position?: Position
+  items?: CapabilitySettingItem[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CapabilitySettingItem {
+  id: string
+  capabilitySettingId: string
+  capabilityId: string
+  capability?: Capability
+  coefficient: number
+  guideline?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ScoreSetting {
+  id: string
+  userType: string
+  positionId: string
+  position?: Position
+  scoreFrom: number
+  scoreTo: number
+  level: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface InterviewSchedule {
+  id: string
+  candidateId: string
+  candidate?: Candidate
+  scheduledAt: string
+  location?: string
+  meetingLink?: string
+  interviewers?: { id: string; fullName: string }[]
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Project Task ====================
+export interface ProjectTask {
+  id: string
+  name: string
+  code: string
+  description?: string
+  projectId: string
+  project?: Project
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Timesheet Entry ====================
+export type TimesheetEntryStatus = 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface TimesheetEntry {
+  id: string
+  entryDate: string
+  normalWorkingTime: number
+  overtime: number
+  note?: string
+  status: TimesheetEntryStatus
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  projectId: string
+  project?: Project
+  taskId: string
+  task?: ProjectTask
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Review Intern ====================
+export type ReviewInternStatus = 'DRAFT' | 'REVIEWED' | 'APPROVED' | 'REJECTED'
+
+export interface ReviewInternDetail {
+  id: string
+  reviewInternId: string
+  capabilityId: string
+  capability?: Capability
+  score?: number
+  comment?: string
+}
+
+export interface ReviewIntern {
+  id: string
+  month: number
+  year: number
+  totalScore?: number
+  level?: string
+  status: ReviewInternStatus
+  internId: string
+  intern?: { id: string; fullName: string }
+  reviewerId: string
+  reviewer?: { id: string; fullName: string }
+  details?: ReviewInternDetail[]
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Team Building Request ====================
+export type TeamBuildingStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
+
+export interface TeamBuildingRequest {
+  id: string
+  note?: string
+  totalMoney?: number
+  attachmentUrl?: string
+  status: TeamBuildingStatus
+  pmId: string
+  pm?: { id: string; fullName: string }
+  projectId: string
+  project?: Project
+  participants?: { id: string; employeeId: string; employee?: { id: string; fullName: string } }[]
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Working Time Request ====================
+export type WorkingTimeTemplate = 'SHIFT_8_5' | 'SHIFT_9_6'
+export type WorkingTimeStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface WorkingTimeRequest {
+  id: string
+  template: WorkingTimeTemplate
+  status: WorkingTimeStatus
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== System Setting ====================
+export interface SystemSetting {
+  id: string
+  key: string
+  value: string
+  category: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Leave Type ====================
+export interface LeaveType {
+  id: string
+  name: string
+  color?: string
+  isPaid: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Off Day ====================
+export interface OffDay {
+  id: string
+  offDate: string
+  name: string
+  note?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Project Member Shadow ====================
+export interface ProjectMemberShadow {
+  id: string
+  projectMemberId: string
+  projectMember?: ProjectMember
+  targetEmployeeId: string
+  targetEmployee?: { id: string; fullName: string }
   createdAt: string
   updatedAt: string
 }

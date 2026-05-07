@@ -37,8 +37,8 @@
     "runtime": "Node.js 20.0.0"
   },
   "build": {
-    "buildCommand": "npx tsc --noEmit",
-    "testCommand": "npx jest --testPathPattern=\"schedule.benchmark\" 2>&1 | tail -10",
+    "buildCommand": "cd /Users/n0x/WebStorm/htql/employee-management-system && npm run build",
+    "testCommand": "npx jest --testPathPattern=invoice --passWithNoTests --no-coverage 2>&1 | tail -20",
     "lintCommand": "npm run lint",
     "devCommand": "npm run start",
     "scripts": {
@@ -207,33 +207,45 @@
   },
   "hotPaths": [
     {
+      "path": "prisma/schema.prisma",
+      "accessCount": 56,
+      "lastAccessed": 1778115842035,
+      "type": "file"
+    },
+    {
+      "path": "src/app.module.ts",
+      "accessCount": 41,
+      "lastAccessed": 1778122068512,
+      "type": "file"
+    },
+    {
       "path": "src/modules/schedule/schedule.service.ts",
       "accessCount": 22,
       "lastAccessed": 1778088154528,
       "type": "file"
     },
     {
-      "path": "src/app.module.ts",
-      "accessCount": 16,
-      "lastAccessed": 1778088019560,
-      "type": "file"
-    },
-    {
-      "path": "prisma/schema.prisma",
+      "path": "src/modules/audit/audit.service.ts",
       "accessCount": 8,
-      "lastAccessed": 1778088681597,
+      "lastAccessed": 1778113971362,
       "type": "file"
     },
     {
       "path": "src/modules/project/services/project.service.ts",
-      "accessCount": 4,
-      "lastAccessed": 1778087749129,
+      "accessCount": 6,
+      "lastAccessed": 1778112435886,
       "type": "file"
     },
     {
-      "path": "src/modules/audit/audit.service.ts",
-      "accessCount": 4,
-      "lastAccessed": 1778087758136,
+      "path": "src/modules/identity/auth-user.type.ts",
+      "accessCount": 6,
+      "lastAccessed": 1778112443088,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/audit/audit.module.ts",
+      "accessCount": 5,
+      "lastAccessed": 1778112443936,
       "type": "file"
     },
     {
@@ -243,9 +255,33 @@
       "type": "file"
     },
     {
-      "path": "src/modules/identity/auth-user.type.ts",
+      "path": "src/modules/leave/leave.service.ts",
       "accessCount": 4,
-      "lastAccessed": 1778087782403,
+      "lastAccessed": 1778112409980,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/leave/dto/create-leave-balance.dto.ts",
+      "accessCount": 4,
+      "lastAccessed": 1778112418266,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/project/project.projects.controller.ts",
+      "accessCount": 4,
+      "lastAccessed": 1778112429528,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/position/position.controller.ts",
+      "accessCount": 4,
+      "lastAccessed": 1778113970854,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/department/department.controller.ts",
+      "accessCount": 4,
+      "lastAccessed": 1778113981059,
       "type": "file"
     },
     {
@@ -273,33 +309,33 @@
       "type": "file"
     },
     {
-      "path": "src/modules/audit/audit.module.ts",
-      "accessCount": 3,
-      "lastAccessed": 1778087776300,
-      "type": "file"
-    },
-    {
       "path": "src/modules/employee/dto/update-employee.dto.ts",
       "accessCount": 3,
       "lastAccessed": 1778087776330,
       "type": "file"
     },
     {
-      "path": "src/modules/leave/dto/create-leave-balance.dto.ts",
+      "path": "src/modules/leave/leave.controller.ts",
       "accessCount": 3,
-      "lastAccessed": 1778087938687,
+      "lastAccessed": 1778112411082,
       "type": "file"
     },
     {
-      "path": "src/modules/leave/leave.service.ts",
+      "path": "src/modules/leave/dto/update-leave-balance.dto.ts",
       "accessCount": 3,
-      "lastAccessed": 1778088194908,
+      "lastAccessed": 1778112419512,
       "type": "file"
     },
     {
-      "path": "src/modules/project/project.projects.controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1778087711534,
+      "path": "tsconfig.json",
+      "accessCount": 3,
+      "lastAccessed": 1778112443994,
+      "type": "file"
+    },
+    {
+      "path": "src/infrastructure/prisma/prisma.service.ts",
+      "accessCount": 3,
+      "lastAccessed": 1778114723942,
       "type": "file"
     },
     {
@@ -327,12 +363,6 @@
       "type": "file"
     },
     {
-      "path": "src/modules/position/position.controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1778087818897,
-      "type": "file"
-    },
-    {
       "path": "src/modules/schedule/schedule.module.ts",
       "accessCount": 2,
       "lastAccessed": 1778087824627,
@@ -345,45 +375,33 @@
       "type": "file"
     },
     {
-      "path": "src/modules/leave/dto/update-leave-balance.dto.ts",
-      "accessCount": 2,
-      "lastAccessed": 1778087911043,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/department/department.controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1778087918023,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/leave/leave.controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1778088184018,
-      "type": "file"
-    },
-    {
-      "path": "tsconfig.json",
-      "accessCount": 2,
-      "lastAccessed": 1778088207828,
-      "type": "file"
-    },
-    {
       "path": "PLAN.md",
-      "accessCount": 1,
-      "lastAccessed": 1778087409439,
+      "accessCount": 2,
+      "lastAccessed": 1778112176980,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/leave/leave.module.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778112412365,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/project/dto/pagination-query.dto.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778112435692,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/payroll/dto/payroll-query.dto.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778112442162,
       "type": "file"
     },
     {
       "path": "src/modules/schedule/dto/schedule-request-query.dto.ts",
       "accessCount": 1,
       "lastAccessed": 1778087721482,
-      "type": "file"
-    },
-    {
-      "path": "src/infrastructure/prisma/prisma.service.ts",
-      "accessCount": 1,
-      "lastAccessed": 1778087759019,
       "type": "file"
     },
     {
@@ -408,12 +426,6 @@
       "path": "src/modules/employee/dto/employee-query.dto.ts",
       "accessCount": 1,
       "lastAccessed": 1778087775280,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/project/dto/pagination-query.dto.ts",
-      "accessCount": 1,
-      "lastAccessed": 1778087781255,
       "type": "file"
     },
     {
@@ -465,12 +477,6 @@
       "type": "file"
     },
     {
-      "path": "src/modules/leave/leave.module.ts",
-      "accessCount": 1,
-      "lastAccessed": 1778087812136,
-      "type": "file"
-    },
-    {
       "path": "src/modules/payroll/dto/update-salary-structure.dto.ts",
       "accessCount": 1,
       "lastAccessed": 1778087815278,
@@ -492,12 +498,6 @@
       "path": "src/modules/payroll/dto/update-payroll-item.dto.ts",
       "accessCount": 1,
       "lastAccessed": 1778087827962,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/payroll/dto/payroll-query.dto.ts",
-      "accessCount": 1,
-      "lastAccessed": 1778087833968,
       "type": "file"
     },
     {

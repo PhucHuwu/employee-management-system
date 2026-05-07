@@ -43,20 +43,32 @@ export function JobRequisitionStatusBadge({ status }: { status: string }) {
 
 export function CandidateStatusBadge({ status }: { status: string }) {
   const variantMap: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    APPLIED: 'outline',
-    SCREENING: 'secondary',
-    INTERVIEW: 'default',
-    OFFERED: 'default',
-    HIRED: 'default',
-    REJECTED: 'destructive',
+    NEW: 'outline',
+    SCHEDULED_TEST: 'secondary',
+    FAILED_TEST: 'destructive',
+    REJECTED_TEST: 'destructive',
+    SCHEDULED_INTERVIEW: 'secondary',
+    PASSED_INTERVIEW: 'default',
+    FAILED_INTERVIEW: 'destructive',
+    REJECTED_INTERVIEW: 'destructive',
+    ACCEPTED_OFFER: 'default',
+    REJECTED_OFFER: 'destructive',
+    ONBOARDED: 'default',
+    REJECTED_APPLY: 'destructive',
   }
   const labelMap: Record<string, string> = {
-    APPLIED: 'Đã nộp',
-    SCREENING: 'Sàng lọc',
-    INTERVIEW: 'Phỏng vấn',
-    OFFERED: 'Đề xuất',
-    HIRED: 'Đã tuyển',
-    REJECTED: 'Từ chối',
+    NEW: 'Mới',
+    SCHEDULED_TEST: 'Lên lịch test',
+    FAILED_TEST: 'Trượt test',
+    REJECTED_TEST: 'Từ chối test',
+    SCHEDULED_INTERVIEW: 'Lên lịch PV',
+    PASSED_INTERVIEW: 'Đậu PV',
+    FAILED_INTERVIEW: 'Trượt PV',
+    REJECTED_INTERVIEW: 'Từ chối PV',
+    ACCEPTED_OFFER: 'Nhận offer',
+    REJECTED_OFFER: 'Từ chối offer',
+    ONBOARDED: 'Đã onboard',
+    REJECTED_APPLY: 'Từ chối đơn',
   }
   return (
     <Badge variant={variantMap[status] ?? 'outline'}>
@@ -134,10 +146,16 @@ export const JOB_STATUS_OPTIONS = [
 ]
 
 export const CANDIDATE_STATUS_OPTIONS = [
-  { value: 'APPLIED', label: 'Đã nộp' },
-  { value: 'SCREENING', label: 'Sàng lọc' },
-  { value: 'INTERVIEW', label: 'Phỏng vấn' },
-  { value: 'OFFERED', label: 'Đề xuất' },
-  { value: 'HIRED', label: 'Đã tuyển' },
-  { value: 'REJECTED', label: 'Từ chối' },
+  { value: 'NEW', label: 'Mới' },
+  { value: 'SCHEDULED_TEST', label: 'Lên lịch test' },
+  { value: 'FAILED_TEST', label: 'Trượt test' },
+  { value: 'REJECTED_TEST', label: 'Từ chối test' },
+  { value: 'SCHEDULED_INTERVIEW', label: 'Lên lịch PV' },
+  { value: 'PASSED_INTERVIEW', label: 'Đậu PV' },
+  { value: 'FAILED_INTERVIEW', label: 'Trượt PV' },
+  { value: 'REJECTED_INTERVIEW', label: 'Từ chối PV' },
+  { value: 'ACCEPTED_OFFER', label: 'Nhận offer' },
+  { value: 'REJECTED_OFFER', label: 'Từ chối offer' },
+  { value: 'ONBOARDED', label: 'Đã onboard' },
+  { value: 'REJECTED_APPLY', label: 'Từ chối đơn' },
 ]
