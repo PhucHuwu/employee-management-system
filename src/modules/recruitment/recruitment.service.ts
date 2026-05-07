@@ -253,6 +253,39 @@ export class RecruitmentService {
     };
   }
 
+  async listCandidatesByStatuses(
+    query: { page: number; size: number },
+    statuses: CandidateStatus[],
+  ) {
+    const where: Prisma.CandidateWhereInput = {
+      status: { in: statuses },
+    };
+
+    const [total, items] = await this.prisma.$transaction([
+      this.prisma.candidate.count({ where }),
+      this.prisma.candidate.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (query.page - 1) * query.size,
+        take: query.size,
+        include: {
+          jobRequisition: { select: { id: true, title: true } },
+          interviews: { orderBy: { scheduledAt: 'desc' } },
+        },
+      }),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page: query.page,
+        size: query.size,
+        total,
+        totalPages: Math.ceil(total / query.size) || 1,
+      },
+    };
+  }
+
   async updateCandidate(user: AuthUser, id: string, dto: UpdateCandidateDto) {
     const existing = await this.prisma.candidate.findUnique({ where: { id } });
 

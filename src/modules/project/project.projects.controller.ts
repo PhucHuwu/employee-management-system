@@ -22,6 +22,8 @@ import { RevenueQueryDto } from './dto/revenue-query.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { UpdateRevenueDto } from './dto/update-revenue.dto';
 import { UploadProjectDocumentDto } from './dto/upload-project-document.dto';
+import { CreateProjectTaskDto } from '@/modules/project-task/dto/create-project-task.dto';
+import { CreateProjectMemberShadowDto } from '@/modules/project-member-shadow/dto/create-project-member-shadow.dto';
 import { ProjectService } from './services/project.service';
 
 @Controller('projects')
@@ -147,5 +149,33 @@ export class ProjectsController {
     @Param('docId', ParseUUIDPipe) docId: string,
   ) {
     return this.projectService.deleteDocument(id, docId);
+  }
+
+  @Get(':id/timesheet-export')
+  @Permissions({ resource: 'project', action: 'read' })
+  getTimesheetExport(@Param('id', ParseUUIDPipe) id: string) {
+    return this.projectService.getTimesheetExport(id);
+  }
+
+  @Get(':id/tasks')
+  @Permissions({ resource: 'project', action: 'read' })
+  getProjectTasks(@Param('id', ParseUUIDPipe) id: string) {
+    return this.projectService.getProjectTasks(id);
+  }
+
+  @Post(':id/tasks')
+  @Permissions({ resource: 'project', action: 'update' })
+  createProjectTask(@Param('id', ParseUUIDPipe) id: string, @Body() dto: CreateProjectTaskDto) {
+    return this.projectService.createProjectTask(id, dto);
+  }
+
+  @Post(':id/members/:memberId/shadows')
+  @Permissions({ resource: 'project', action: 'update' })
+  createProjectMemberShadow(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
+    @Body() dto: CreateProjectMemberShadowDto,
+  ) {
+    return this.projectService.createProjectMemberShadow(memberId, dto);
   }
 }

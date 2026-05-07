@@ -80,6 +80,16 @@ class JobRequisitionController {
   clone(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.recruitmentService.cloneRequisition(user, id);
   }
+
+  @Post(':id/add-cv')
+  @Permissions({ resource: 'job_requisition', action: 'update' })
+  addCv(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('candidateId', ParseUUIDPipe) candidateId: string,
+  ) {
+    return this.recruitmentService.assignCandidateToRequisition(user, candidateId, id);
+  }
 }
 
 @Controller('candidates')
@@ -164,6 +174,63 @@ class CandidateController {
     @Body() dto: UploadCandidateCvDto,
   ) {
     return this.recruitmentService.uploadCandidateCv(user, id, dto.cvUrl);
+  }
+
+  @Get('interviews')
+  @Permissions({ resource: 'candidate', action: 'read' })
+  findInterviewCandidates(
+    @Query('page') page = '1',
+    @Query('size') size = '20',
+  ) {
+    return this.recruitmentService.listCandidatesByStatuses(
+      {
+        page: parseInt(page, 10),
+        size: parseInt(size, 10),
+      },
+      [
+        CandidateStatus.SCHEDULED_INTERVIEW,
+        CandidateStatus.PASSED_INTERVIEW,
+        CandidateStatus.FAILED_INTERVIEW,
+      ],
+    );
+  }
+
+  @Get('offers')
+  @Permissions({ resource: 'candidate', action: 'read' })
+  findOfferCandidates(
+    @Query('page') page = '1',
+    @Query('size') size = '20',
+  ) {
+    return this.recruitmentService.listCandidatesByStatuses(
+      {
+        page: parseInt(page, 10),
+        size: parseInt(size, 10),
+      },
+      [
+        CandidateStatus.ACCEPTED_OFFER,
+        CandidateStatus.REJECTED_OFFER,
+        CandidateStatus.FAILED_INTERVIEW,
+      ],
+    );
+  }
+
+  @Get('onboards')
+  @Permissions({ resource: 'candidate', action: 'read' })
+  findOnboardCandidates(
+    @Query('page') page = '1',
+    @Query('size') size = '20',
+  ) {
+    return this.recruitmentService.listCandidatesByStatuses(
+      {
+        page: parseInt(page, 10),
+        size: parseInt(size, 10),
+      },
+      [
+        CandidateStatus.ACCEPTED_OFFER,
+        CandidateStatus.REJECTED_OFFER,
+        CandidateStatus.ONBOARDED,
+      ],
+    );
   }
 }
 

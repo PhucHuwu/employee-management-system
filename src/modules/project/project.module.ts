@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from '@/infrastructure/prisma/prisma.module';
+import { ProjectTaskModule } from '@/modules/project-task/project-task.module';
+import { ProjectMemberShadowModule } from '@/modules/project-member-shadow/project-member-shadow.module';
 import { CustomersController } from './project.customers.controller';
 import { ProjectsController } from './project.projects.controller';
 import { AuditLogService } from './services/audit-log.service';
@@ -11,7 +13,7 @@ import { STORAGE_ADAPTER } from './services/storage/storage.adapter';
 import { ProjectService } from './services/project.service';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ProjectTaskModule, ProjectMemberShadowModule],
   controllers: [ProjectsController, CustomersController],
   providers: [
     ProjectService,

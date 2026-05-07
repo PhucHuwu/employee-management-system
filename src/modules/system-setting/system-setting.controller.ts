@@ -49,4 +49,54 @@ export class SystemSettingController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.systemSettingService.remove(id);
   }
+
+  @Get('email')
+  getEmailSettings() {
+    return this.systemSettingService.getByCategory('email');
+  }
+
+  @Put('email')
+  updateEmailSettings(@Body() body: Record<string, string>) {
+    return this.systemSettingService.updateByCategory('email', body);
+  }
+
+  @Get('notifications')
+  getNotificationSettings() {
+    return this.systemSettingService.getByCategory('notification');
+  }
+
+  @Put('notifications')
+  updateNotificationSettings(@Body() body: Record<string, string>) {
+    return this.systemSettingService.updateByCategory('notification', body);
+  }
+
+  @Get('timesheet')
+  getTimesheetSettings() {
+    return this.systemSettingService.getByCategory('timesheet');
+  }
+
+  @Put('timesheet')
+  updateTimesheetSettings(@Body() body: Record<string, string>) {
+    return this.systemSettingService.updateByCategory('timesheet', body);
+  }
+
+  @Get('requests')
+  getRequestSettings() {
+    return this.systemSettingService.getByCategory('request');
+  }
+
+  @Put('requests')
+  updateRequestSettings(@Body() body: Record<string, string>) {
+    return this.systemSettingService.updateByCategory('request', body);
+  }
+
+  @Get('integrations')
+  getIntegrationSettings() {
+    return this.systemSettingService.getByCategory('integration');
+  }
+
+  @Put('integrations')
+  updateIntegrationSettings(@Body() body: Record<string, string>) {
+    return this.systemSettingService.updateByCategory('integration', body);
+  }
 }

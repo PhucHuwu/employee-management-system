@@ -214,4 +214,67 @@ export class TimesheetEntryService {
       include: { employee: true, project: true, task: true },
     });
   }
+
+  async getMonitoring(
+    startDate?: Date,
+    endDate?: Date,
+    projectId?: string,
+    employeeId?: string,
+  ) {
+    const entries = await this.prisma.timesheetEntry.findMany({
+      where: {
+        ...(startDate || endDate
+          ? {
+              entryDate: {
+                ...(startDate ? { gte: startDate } : {}),
+                ...(endDate ? { lte: endDate } : {}),
+              },
+            }
+          : {}),
+        ...(projectId ? { projectId } : {}),
+        ...(employeeId ? { employeeId } : {}),
+      },
+      include: { employee: true, project: true, task: true },
+      orderBy: { entryDate: 'desc' },
+    });
+
+    const byProject = new Map<string, { projectId: string; projectName: string; normalHours: number; overtime: number }>();
+    const byEmployee = new Map<string, { employeeId: string; employeeName: string; normalHours: number; overtime: number }>();
+
+    for (const entry of entries) {
+      const pExisting = byProject.get(entry.projectId);
+      if (pExisting) {
+        pExisting.normalHours += entry.normalWorkingTime;
+        pExisting.overtime += entry.overtime;
+      } else {
+        byProject.set(entry.projectId, {
+          projectId: entry.projectId,
+          projectName: entry.project.name,
+          normalHours: entry.normalWorkingTime,
+          overtime: entry.overtime,
+        });
+      }
+
+      const eExisting = byEmployee.get(entry.employeeId);
+      if (eExisting) {
+        eExisting.normalHours += entry.normalWorkingTime;
+        eExisting.overtime += entry.overtime;
+      } else {
+        byEmployee.set(entry.employeeId, {
+          employeeId: entry.employeeId,
+          employeeName: entry.employee.fullName,
+          normalHours: entry.normalWorkingTime,
+          overtime: entry.overtime,
+        });
+      }
+    }
+
+    return {
+      totalEntries: entries.length,
+      totalNormalHours: entries.reduce((sum, e) => sum + e.normalWorkingTime, 0),
+      totalOvertime: entries.reduce((sum, e) => sum + e.overtime, 0),
+      byProject: Array.from(byProject.values()),
+      byEmployee: Array.from(byEmployee.values()),
+    };
+  }
 }

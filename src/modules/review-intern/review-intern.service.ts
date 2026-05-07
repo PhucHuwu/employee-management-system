@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
+import { AuditService } from '@/modules/audit/audit.service';
+import { AuthUser } from '@/modules/identity/auth-user.type';
 import { CreateReviewInternDto, ReviewInternDetailInput } from './dto/create-review-intern.dto';
 import { UpdateReviewInternDto } from './dto/update-review-intern.dto';
 
 @Injectable()
 export class ReviewInternService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async create(dto: CreateReviewInternDto) {
     return this.prisma.reviewIntern.create({
@@ -27,6 +32,20 @@ export class ReviewInternService {
       where: {
         ...(reviewerId ? { reviewerId } : {}),
         ...(internId ? { internId } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { intern: true, reviewer: true, details: { include: { capability: true } } },
+    });
+  }
+
+  async getReports(month?: string, year?: string) {
+    const monthInt = month ? parseInt(month, 10) : undefined;
+    const yearInt = year ? parseInt(year, 10) : undefined;
+
+    return this.prisma.reviewIntern.findMany({
+      where: {
+        ...(monthInt !== undefined && !isNaN(monthInt) ? { month: monthInt } : {}),
+        ...(yearInt !== undefined && !isNaN(yearInt) ? { year: yearInt } : {}),
       },
       orderBy: { createdAt: 'desc' },
       include: { intern: true, reviewer: true, details: { include: { capability: true } } },
@@ -96,5 +115,39 @@ export class ReviewInternService {
   async remove(id: string) {
     await this.findOne(id);
     return this.prisma.reviewIntern.delete({ where: { id } });
+  }
+
+  async sendMail(user: AuthUser, id: string) {
+    const item = await this.findOne(id);
+    if (item.status !== 'APPROVED') {
+      throw new BadRequestException('Only approved reviews can be emailed');
+    }
+
+    await this.auditService.log({
+      actor: { id: user.id, role: user.role },
+      action: 'REVIEW_INTERN_MAIL_SENT',
+      entityType: 'REVIEW_INTERN',
+      entityId: id,
+      newData: { internId: item.internId, reviewerId: item.reviewerId, status: item.status },
+    });
+
+    return { sent: true };
+  }
+
+  async updateToHrm(user: AuthUser, id: string) {
+    const item = await this.findOne(id);
+    if (item.status !== 'APPROVED') {
+      throw new BadRequestException('Only approved reviews can be synced to HRM');
+    }
+
+    await this.auditService.log({
+      actor: { id: user.id, role: user.role },
+      action: 'REVIEW_INTERN_UPDATED_TO_HRM',
+      entityType: 'REVIEW_INTERN',
+      entityId: id,
+      newData: { internId: item.internId, reviewerId: item.reviewerId, status: item.status },
+    });
+
+    return { updated: true };
   }
 }

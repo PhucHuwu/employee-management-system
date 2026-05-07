@@ -668,6 +668,8 @@ export const reviewInternApi = {
   submitReview: (id: string) => apiClient.post<ReviewIntern>(`/review-interns/${id}/submit-review`, {}),
   approve: (id: string) => apiClient.post<ReviewIntern>(`/review-interns/${id}/approve`, {}),
   reject: (id: string) => apiClient.post<ReviewIntern>(`/review-interns/${id}/reject`, {}),
+  sendMail: (id: string) => apiClient.post<void>(`/review-interns/${id}/send-mail`, {}),
+  updateToHrm: (id: string) => apiClient.post<void>(`/review-interns/${id}/update-to-hrm`, {}),
 }
 
 // ==================== Team Building Request API ====================

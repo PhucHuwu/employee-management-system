@@ -13,6 +13,10 @@ import { UpdateRevenueDto } from '../dto/update-revenue.dto';
 import { UploadProjectDocumentDto } from '../dto/upload-project-document.dto';
 import { AuditLogService } from './audit-log.service';
 import { STORAGE_ADAPTER, StorageAdapter } from './storage/storage.adapter';
+import { ProjectTaskService } from '@/modules/project-task/project-task.service';
+import { ProjectMemberShadowService } from '@/modules/project-member-shadow/project-member-shadow.service';
+import { CreateProjectTaskDto } from '@/modules/project-task/dto/create-project-task.dto';
+import { CreateProjectMemberShadowDto } from '@/modules/project-member-shadow/dto/create-project-member-shadow.dto';
 
 @Injectable()
 export class ProjectService {
@@ -21,6 +25,8 @@ export class ProjectService {
     private readonly auditLogService: AuditLogService,
     @Inject(STORAGE_ADAPTER)
     private readonly storageAdapter: StorageAdapter,
+    private readonly projectTaskService: ProjectTaskService,
+    private readonly projectMemberShadowService: ProjectMemberShadowService,
   ) {}
 
   async createProject(dto: CreateProjectDto) {
@@ -530,6 +536,33 @@ export class ProjectService {
     });
 
     return { deleted: true };
+  }
+
+  async getTimesheetExport(projectId: string) {
+    await this.ensureProjectExists(projectId);
+
+    return this.prisma.timesheetEntry.findMany({
+      where: { projectId },
+      include: {
+        employee: true,
+        task: true,
+      },
+      orderBy: { entryDate: 'desc' },
+    });
+  }
+
+  async getProjectTasks(projectId: string) {
+    await this.ensureProjectExists(projectId);
+    return this.projectTaskService.findAll(projectId);
+  }
+
+  async createProjectTask(projectId: string, dto: CreateProjectTaskDto) {
+    await this.ensureProjectExists(projectId);
+    return this.projectTaskService.create({ ...dto, projectId });
+  }
+
+  async createProjectMemberShadow(projectMemberId: string, dto: CreateProjectMemberShadowDto) {
+    return this.projectMemberShadowService.create({ ...dto, projectMemberId });
   }
 
   private async ensureProjectExists(projectId: string): Promise<void> {

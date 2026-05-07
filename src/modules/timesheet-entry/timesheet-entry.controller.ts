@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { TimesheetEntryService } from './timesheet-entry.service';
+import { TimesheetLockService } from './timesheet-lock.service';
 import { CreateTimesheetEntryDto } from './dto/create-timesheet-entry.dto';
 import { UpdateTimesheetEntryDto } from './dto/update-timesheet-entry.dto';
 import { ComplainTimesheetEntryDto } from './dto/complain-timesheet-entry.dto';
@@ -18,7 +19,10 @@ import { BulkApproveTimesheetEntryDto } from './dto/bulk-approve-timesheet-entry
 
 @Controller('timesheet-entries')
 export class TimesheetEntryController {
-  constructor(private readonly timesheetEntryService: TimesheetEntryService) {}
+  constructor(
+    private readonly timesheetEntryService: TimesheetEntryService,
+    private readonly timesheetLockService: TimesheetLockService,
+  ) {}
 
   @Post()
   create(@Body() dto: CreateTimesheetEntryDto) {
@@ -81,5 +85,25 @@ export class TimesheetEntryController {
     @Body() dto: RejectTimesheetEntryDto,
   ) {
     return this.timesheetEntryService.reject(id, dto);
+  }
+
+  @Post('auto-lock')
+  autoLock() {
+    return this.timesheetLockService.autoLock();
+  }
+
+  @Get('monitoring')
+  getMonitoring(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('projectId') projectId?: string,
+    @Query('employeeId') employeeId?: string,
+  ) {
+    return this.timesheetEntryService.getMonitoring(
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+      projectId,
+      employeeId,
+    );
   }
 }

@@ -163,9 +163,25 @@ const allMenuItems: SidebarEntry[] = [
   },
   {
     title: 'Tuyển dụng',
-    url: '/recruitment',
     icon: UserPlus,
     roles: ['Admin', 'Manager'],
+    items: [
+      {
+        title: 'Danh sách',
+        url: '/recruitment',
+        roles: ['Admin', 'Manager'],
+      },
+      {
+        title: 'Lịch phỏng vấn',
+        url: '/interview-schedules',
+        roles: ['Admin', 'Manager'],
+      },
+      {
+        title: 'Báo cáo',
+        url: '/recruitment-reports',
+        roles: ['Admin', 'Manager'],
+      },
+    ],
   },
   {
     title: 'Đào tạo',
@@ -276,19 +292,41 @@ const allMenuItems: SidebarEntry[] = [
         url: '/timesheet-approvals',
         roles: ['Admin', 'Manager'],
       },
+      {
+        title: 'Báo cáo',
+        url: '/timesheet-reports',
+        roles: ['Admin', 'Manager'],
+      },
     ],
   },
   {
     title: 'Review Intern',
-    url: '/review-interns',
     icon: UsersRound,
     roles: ['Admin', 'Manager'],
+    items: [
+      {
+        title: 'Danh sách',
+        url: '/review-interns',
+        roles: ['Admin', 'Manager'],
+      },
+      {
+        title: 'Báo cáo',
+        url: '/review-intern-reports',
+        roles: ['Admin', 'Manager'],
+      },
+    ],
   },
   {
     title: 'Team Building',
     url: '/team-building-requests',
     icon: CalendarDays,
     roles: ['Admin', 'Manager'],
+  },
+  {
+    title: 'Onsite',
+    url: '/onsite-requests',
+    icon: MapPin,
+    roles: ['Admin', 'Manager', 'Employee'],
   },
   {
     title: 'Đăng ký giờ làm',

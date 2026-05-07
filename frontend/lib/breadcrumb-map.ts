@@ -36,6 +36,11 @@ export const breadcrumbMap: Record<string, string> = {
   'leave-types': 'Loại nghỉ phép',
   'off-days': 'Ngày nghỉ lễ',
   'system-settings': 'Cài đặt hệ thống',
+  'onsite-requests': 'Onsite',
+  'timesheet-reports': 'Báo cáo timesheet',
+  'recruitment-reports': 'Báo cáo tuyển dụng',
+  'review-intern-reports': 'Báo cáo review',
+  'interview-schedules': 'Lịch phỏng vấn',
 }
 
 export function buildBreadcrumbItems(pathname: string): Array<{ label: string; href?: string }> {

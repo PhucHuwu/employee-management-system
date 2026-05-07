@@ -51,4 +51,31 @@ export class SystemSettingService {
     await this.findOne(id);
     return this.prisma.systemSetting.delete({ where: { id } });
   }
+
+  async getByCategory(category: string) {
+    return this.prisma.systemSetting.findMany({
+      where: { category },
+      orderBy: { key: 'asc' },
+    });
+  }
+
+  async updateByCategory(category: string, settings: Record<string, string>) {
+    const results = [];
+    for (const [key, value] of Object.entries(settings)) {
+      const result = await this.prisma.systemSetting.upsert({
+        where: { key },
+        create: {
+          key: key.trim(),
+          value: value.trim(),
+          category: category.trim(),
+        },
+        update: {
+          value: value.trim(),
+          category: category.trim(),
+        },
+      });
+      results.push(result);
+    }
+    return results;
+  }
 }
