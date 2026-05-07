@@ -15,6 +15,9 @@ import { LeaveModule } from './modules/leave/leave.module';
 import { TrainingModule } from './modules/training/training.module';
 import { RecruitmentModule } from './modules/recruitment/recruitment.module';
 import { PayrollModule } from './modules/payroll/payroll.module';
+import { ProjectBudgetModule } from './modules/project-budget/project-budget.module';
+import { ExpenseClaimModule } from './modules/expense-claim/expense-claim.module';
+import { InvoiceModule } from './modules/invoice/invoice.module';
 import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { AppConfigService } from './config/app-config.service';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -38,6 +41,9 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     TrainingModule,
     RecruitmentModule,
     PayrollModule,
+    ProjectBudgetModule,
+    ExpenseClaimModule,
+    InvoiceModule,
   ],
   providers: [AppConfigService],
 })

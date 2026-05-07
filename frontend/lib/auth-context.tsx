@@ -4,12 +4,18 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { User, AuthResponse, Role } from '@/lib/types'
 import apiClient from '@/lib/api/client'
 
-type BackendRole = 'ADMIN' | 'MANAGER'
+type BackendRole = 'ADMIN' | 'MANAGER' | 'EMPLOYEE'
 
 const toUiRole = (role: Role | BackendRole): Role => {
   if (role === 'ADMIN') return 'Admin'
   if (role === 'MANAGER') return 'Manager'
+  if (role === 'EMPLOYEE') return 'Employee'
   return role
+}
+
+export interface PermissionCheck {
+  resource: string
+  action: string
 }
 
 interface AuthContextType {
@@ -20,6 +26,7 @@ interface AuthContextType {
   logout: () => void
   hasRole: (role: Role) => boolean
   hasAnyRole: (roles: Role[]) => boolean
+  hasPermission: (check: PermissionCheck) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -87,6 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return user ? roles.includes(user.role) : false
   }, [user])
 
+  const hasPermission = useCallback((check: PermissionCheck) => {
+    if (!user) return false
+    if (user.role === 'Admin') return true
+    return false
+  }, [user])
+
   return (
     <AuthContext.Provider
       value={{
@@ -97,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         hasRole,
         hasAnyRole,
+        hasPermission,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 // ==================== Auth ====================
-export type Role = 'Admin' | 'Manager'
+export type Role = 'Admin' | 'Manager' | 'Employee'
 
 export interface User {
   id: string
@@ -8,6 +8,8 @@ export interface User {
   role: Role
   departmentScopeId?: string | null
   projectScopeIds?: string[]
+  scopeEmployeeIds?: string[]
+  employeeId?: string | null
   scopes?: string[]
   avatarUrl?: string
 }
@@ -495,6 +497,71 @@ export interface PayrollItem {
   workingDays: number
   actualDays: number
   notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Project Budget ====================
+export type BudgetCategory = 'LABOR' | 'EQUIPMENT' | 'OVERHEAD'
+
+export interface ProjectBudget {
+  id: string
+  projectId: string
+  project?: { id: string; name: string }
+  category: BudgetCategory
+  budgetedAmount: number
+  actualAmount: number
+  note?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Expense Claim ====================
+export type ExpenseClaimStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface ExpenseClaim {
+  id: string
+  employeeId: string
+  employee?: { id: string; fullName: string }
+  projectId: string
+  project?: { id: string; name: string }
+  amount: number
+  category: string
+  description?: string
+  receiptUrl?: string
+  status: ExpenseClaimStatus
+  approvedBy?: string
+  approvedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ==================== Invoice ====================
+export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE'
+
+export interface InvoiceItem {
+  id: string
+  invoiceId: string
+  description: string
+  quantity: number
+  unitPrice: number
+  amount: number
+}
+
+export interface Invoice {
+  id: string
+  customerId: string
+  customer?: { id: string; companyName: string }
+  projectId: string
+  project?: { id: string; name: string }
+  invoiceDate: string
+  dueDate: string
+  totalAmount: number
+  taxAmount: number
+  status: InvoiceStatus
+  sentAt?: string
+  paidAt?: string
+  items?: InvoiceItem[]
   createdAt: string
   updatedAt: string
 }

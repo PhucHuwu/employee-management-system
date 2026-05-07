@@ -51,6 +51,25 @@ enum RevenueType {
   ACTUAL
 }
 
+enum BudgetCategory {
+  LABOR
+  EQUIPMENT
+  OVERHEAD
+}
+
+enum ExpenseClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+}
+
 enum JobRequisitionStatus {
   DRAFT
   OPEN
@@ -154,6 +173,7 @@ model Employee {
   trainingRecords  TrainingRecord[]
   salaryStructures SalaryStructure[]
   payrollItems     PayrollItem[]
+  expenseClaims    ExpenseClaim[]
   userAccount      UserAccount?
 
   @@index([departmentId, positionId])
@@ -210,6 +230,9 @@ model Project {
   customers     ProjectCustomer[]
   documents     ProjectDocument[]
   revenues      ProjectRevenue[]
+  budgets       ProjectBudget[]
+  expenseClaims ExpenseClaim[]
+  invoices      Invoice[]
 
   @@map("projects")
 }
@@ -244,6 +267,7 @@ model Customer {
   notes             String?
   cooperationStatus String?           @map("cooperation_status") @db.VarChar(100)
   projects          ProjectCustomer[]
+  invoices          Invoice[]
 
   @@map("customers")
 }
@@ -502,4 +526,72 @@ model PayrollItem {
 
   @@unique([payrollId, employeeId])
   @@map("payroll_items")
+}
+
+model ProjectBudget {
+  id             String         @id @default(uuid()) @db.Uuid
+  category       BudgetCategory
+  budgetedAmount Decimal        @map("budgeted_amount") @db.Decimal(18, 2)
+  actualAmount   Decimal        @default(0) @map("actual_amount") @db.Decimal(18, 2)
+  note           String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  projectId      String         @map("project_id") @db.Uuid
+  project        Project        @relation(fields: [projectId], references: [id], onDelete: Restrict)
+
+  @@map("project_budgets")
+}
+
+model ExpenseClaim {
+  id          String             @id @default(uuid()) @db.Uuid
+  amount      Decimal            @db.Decimal(18, 2)
+  category    String             @db.VarChar(100)
+  description String?
+  receiptUrl  String?            @map("receipt_url")
+  status      ExpenseClaimStatus @default(PENDING)
+  approvedBy  String?            @map("approved_by") @db.Uuid
+  approvedAt  DateTime?          @map("approved_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  employeeId  String             @map("employee_id") @db.Uuid
+  projectId   String             @map("project_id") @db.Uuid
+  employee    Employee           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  project     Project            @relation(fields: [projectId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, status])
+  @@map("expense_claims")
+}
+
+model Invoice {
+  id          String        @id @default(uuid()) @db.Uuid
+  invoiceDate DateTime      @map("invoice_date") @db.Date
+  dueDate     DateTime      @map("due_date") @db.Date
+  totalAmount Decimal       @map("total_amount") @db.Decimal(18, 2)
+  taxAmount   Decimal       @default(0) @map("tax_amount") @db.Decimal(18, 2)
+  status      InvoiceStatus @default(DRAFT)
+  sentAt      DateTime?     @map("sent_at")
+  paidAt      DateTime?     @map("paid_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  customerId  String        @map("customer_id") @db.Uuid
+  projectId   String        @map("project_id") @db.Uuid
+  customer    Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  items       InvoiceItem[]
+
+  @@index([projectId, status])
+  @@index([customerId, status])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid()) @db.Uuid
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @map("unit_price") @db.Decimal(18, 2)
+  amount      Decimal @db.Decimal(18, 2)
+  invoiceId   String  @map("invoice_id") @db.Uuid
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+
+  @@map("invoice_items")
 }

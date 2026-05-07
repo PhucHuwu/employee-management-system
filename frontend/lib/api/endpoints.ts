@@ -38,6 +38,9 @@ import type {
   SalaryStructure,
   Payroll,
   PayrollItem,
+  ProjectBudget,
+  ExpenseClaim,
+  Invoice,
 } from '@/lib/types'
 
 const toPaginated = <T>(response: (ApiListResponse<T> & {
@@ -432,4 +435,78 @@ export const payrollApi = {
 
   updatePayrollItem: (payrollId: string, itemId: string, data: Partial<PayrollItem>) =>
     apiClient.put<PayrollItem>(`/payrolls/${payrollId}/items/${itemId}`, data),
+}
+
+// ==================== Project Budget API ====================
+export const projectBudgetApi = {
+  getAll: async (params?: { projectId?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<ProjectBudget>>('/project-budgets', params)),
+
+  getById: (id: string) => apiClient.get<ProjectBudget>(`/project-budgets/${id}`),
+
+  create: (data: Partial<ProjectBudget>) => apiClient.post<ProjectBudget>('/project-budgets', data),
+
+  update: (id: string, data: Partial<ProjectBudget>) =>
+    apiClient.put<ProjectBudget>(`/project-budgets/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/project-budgets/${id}`),
+
+  getBudgetVsActual: (projectId: string) =>
+    apiClient.get<{
+      projectId: string
+      projectName: string
+      budgets: Array<{ category: string; budgeted: number; actual: number; variance: number }>
+      totalBudgeted: number
+      totalActual: number
+      totalRevenue: number
+    }>(`/project-budgets/budget-vs-actual/${projectId}`),
+}
+
+// ==================== Expense Claim API ====================
+export const expenseClaimApi = {
+  getAll: async (params?: { status?: string; projectId?: string; employeeId?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<ExpenseClaim>>('/expense-claims', params)),
+
+  getById: (id: string) => apiClient.get<ExpenseClaim>(`/expense-claims/${id}`),
+
+  create: (data: Partial<ExpenseClaim>) => apiClient.post<ExpenseClaim>('/expense-claims', data),
+
+  update: (id: string, data: Partial<ExpenseClaim>) =>
+    apiClient.put<ExpenseClaim>(`/expense-claims/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/expense-claims/${id}`),
+
+  approve: (id: string) => apiClient.post<ExpenseClaim>(`/expense-claims/${id}/approve`, {}),
+
+  reject: (id: string, rejectionReason?: string) =>
+    apiClient.post<ExpenseClaim>(`/expense-claims/${id}/reject`, { rejectionReason }),
+}
+
+// ==================== Invoice API ====================
+export const invoiceApi = {
+  getAll: async (params?: { status?: string; projectId?: string; customerId?: string; page?: number; size?: number }) =>
+    toPaginated(await apiClient.get<ApiListResponse<Invoice>>('/invoices', params)),
+
+  getById: (id: string) => apiClient.get<Invoice>(`/invoices/${id}`),
+
+  create: (data: Omit<Partial<Invoice>, 'items'> & { items?: Array<{ description: string; quantity: number; unitPrice: number }> }) =>
+    apiClient.post<Invoice>('/invoices', data),
+
+  update: (id: string, data: Omit<Partial<Invoice>, 'items'> & { items?: Array<{ description: string; quantity: number; unitPrice: number }> }) =>
+    apiClient.put<Invoice>(`/invoices/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/invoices/${id}`),
+
+  send: (id: string) => apiClient.post<Invoice>(`/invoices/${id}/send`, {}),
+
+  pay: (id: string) => apiClient.post<Invoice>(`/invoices/${id}/pay`, {}),
+
+  generateFromRevenue: (data: { projectId: string; month: number; year: number }) =>
+    apiClient.post<Invoice>('/invoices/generate-from-revenue', data),
+
+  getAccountsReceivable: () =>
+    apiClient.get<{
+      aging: Record<string, { count: number; amount: number; invoices: Invoice[] }>
+      totalOutstanding: number
+    }>('/invoices/accounts-receivable'),
 }

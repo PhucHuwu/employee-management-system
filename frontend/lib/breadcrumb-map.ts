@@ -15,6 +15,9 @@ export const breadcrumbMap: Record<string, string> = {
   training: 'Đào tạo',
   payrolls: 'Lương',
   'salary-structures': 'Cơ cấu lương',
+  'expense-claims': 'Chi phí',
+  invoices: 'Hóa đơn',
+  'accounts-receivable': 'Công nợ',
 }
 
 export function buildBreadcrumbItems(pathname: string): Array<{ label: string; href?: string }> {
