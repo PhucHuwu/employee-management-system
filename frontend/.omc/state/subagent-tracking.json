@@ -15,10 +15,278 @@
       "started_at": "2026-05-07T01:05:23.587Z",
       "parent_mode": "none",
       "status": "running"
+    },
+    {
+      "agent_id": "ac7fb8edb2d4481d1",
+      "agent_type": "general-purpose",
+      "started_at": "2026-05-07T04:11:27.172Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:14:17.944Z",
+      "duration_ms": 170772
+    },
+    {
+      "agent_id": "a28ccac6a427792c5",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:35:34.749Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:38:48.334Z",
+      "duration_ms": 193585
+    },
+    {
+      "agent_id": "ac8066b5ab6c34ba3",
+      "agent_type": "agent-timesheet",
+      "started_at": "2026-05-07T04:35:44.642Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:48.075Z",
+      "duration_ms": 243433
+    },
+    {
+      "agent_id": "a73cd4ec82d05729d",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:35:56.200Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:42:13.654Z",
+      "duration_ms": 377454
+    },
+    {
+      "agent_id": "a8b5ee6f103d0e78b",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:36:09.981Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:38:34.771Z",
+      "duration_ms": 144790
+    },
+    {
+      "agent_id": "a39c533966cc87417",
+      "agent_type": "agent-frontend-pages",
+      "started_at": "2026-05-07T04:36:23.096Z",
+      "parent_mode": "none",
+      "status": "running"
+    },
+    {
+      "agent_id": "ac27549da9d825001",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:38:34.964Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:38:57.812Z",
+      "duration_ms": 22848
+    },
+    {
+      "agent_id": "a8fea7ee1d5bf3590",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:38:48.526Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:07.618Z",
+      "duration_ms": 19092
+    },
+    {
+      "agent_id": "af7c98ba9ccc4d85c",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:38:57.997Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:01.949Z",
+      "duration_ms": 3952
+    },
+    {
+      "agent_id": "ac883a24f6f188183",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:39:02.144Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:21.801Z",
+      "duration_ms": 19657
+    },
+    {
+      "agent_id": "a6892a418a5f8a29b",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:39:07.946Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:17.321Z",
+      "duration_ms": 9375
+    },
+    {
+      "agent_id": "a5cb3f7596f6abf55",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:39:17.511Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:32.483Z",
+      "duration_ms": 14972
+    },
+    {
+      "agent_id": "a2980469e12297a3d",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:39:21.992Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:32.745Z",
+      "duration_ms": 10753
+    },
+    {
+      "agent_id": "addbf67d15d19b153",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:39:32.684Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:41.794Z",
+      "duration_ms": 9110
+    },
+    {
+      "agent_id": "afb8ff0c26afde93c",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:39:32.937Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:41.564Z",
+      "duration_ms": 8627
+    },
+    {
+      "agent_id": "a3ce15c679670579c",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:39:41.770Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:46.235Z",
+      "duration_ms": 4465
+    },
+    {
+      "agent_id": "afde23dd90890bc97",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:39:41.984Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:46.330Z",
+      "duration_ms": 4346
+    },
+    {
+      "agent_id": "afaebe50bdafa989e",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:39:46.654Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:49.722Z",
+      "duration_ms": 3068
+    },
+    {
+      "agent_id": "a924d27db653e148e",
+      "agent_type": "agent-timesheet",
+      "started_at": "2026-05-07T04:39:48.263Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:40:08.024Z",
+      "duration_ms": 19761
+    },
+    {
+      "agent_id": "a8708866690bfb978",
+      "agent_type": "agent-onsite",
+      "started_at": "2026-05-07T04:39:49.916Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:39:53.230Z",
+      "duration_ms": 3314
+    },
+    {
+      "agent_id": "af72f98507c71def3",
+      "agent_type": "agent-timesheet",
+      "started_at": "2026-05-07T04:40:08.210Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:40:24.500Z",
+      "duration_ms": 16290
+    },
+    {
+      "agent_id": "a9b839a9c5c4cf724",
+      "agent_type": "agent-timesheet",
+      "started_at": "2026-05-07T04:40:24.699Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:40:33.122Z",
+      "duration_ms": 8423
+    },
+    {
+      "agent_id": "a62246ef0a77a293c",
+      "agent_type": "agent-timesheet",
+      "started_at": "2026-05-07T04:40:33.337Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:40:40.728Z",
+      "duration_ms": 7391
+    },
+    {
+      "agent_id": "af4cf8dc1ed107507",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:42:13.876Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:42:45.665Z",
+      "duration_ms": 31789
+    },
+    {
+      "agent_id": "aab7b62fc509dd0ac",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:42:45.865Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:42:55.430Z",
+      "duration_ms": 9565
+    },
+    {
+      "agent_id": "a89c3b450a6f933d3",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:42:55.634Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:43:04.704Z",
+      "duration_ms": 9070
+    },
+    {
+      "agent_id": "a4e3ebc77879e22db",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:43:04.914Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:43:14.361Z",
+      "duration_ms": 9447
+    },
+    {
+      "agent_id": "a5d371815cb60fcf5",
+      "agent_type": "agent-candidate",
+      "started_at": "2026-05-07T04:43:10.651Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:43:17.688Z",
+      "duration_ms": 7037
+    },
+    {
+      "agent_id": "a8d90114827787718",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:43:14.559Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:43:18.609Z",
+      "duration_ms": 4050
+    },
+    {
+      "agent_id": "a3bbbb093289d5144",
+      "agent_type": "agent-recruitment-reports",
+      "started_at": "2026-05-07T04:43:18.797Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-05-07T04:43:21.528Z",
+      "duration_ms": 2731
     }
   ],
-  "total_spawned": 2,
-  "total_completed": 1,
+  "total_spawned": 32,
+  "total_completed": 29,
   "total_failed": 0,
-  "last_updated": "2026-05-07T03:00:58.195Z"
+  "last_updated": "2026-05-07T04:43:21.632Z"
 }

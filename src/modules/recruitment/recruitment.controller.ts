@@ -18,6 +18,8 @@ import { CreateJobRequisitionDto } from './dto/create-job-requisition.dto';
 import { UpdateJobRequisitionDto } from './dto/update-job-requisition.dto';
 import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
+import { ChangeCandidateStatusDto } from './dto/change-candidate-status.dto';
+import { UploadCandidateCvDto } from './dto/upload-candidate-cv.dto';
 import { CreateInterviewDto } from './dto/create-interview.dto';
 import { UpdateInterviewDto } from './dto/update-interview.dto';
 
@@ -137,6 +139,32 @@ class CandidateController {
   ) {
     return this.recruitmentService.assignCandidateToRequisition(user, id, jobRequisitionId);
   }
+
+  @Post(':id/clone')
+  @Permissions({ resource: 'candidate', action: 'create' })
+  clone(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.recruitmentService.cloneCandidate(user, id);
+  }
+
+  @Post(':id/change-status')
+  @Permissions({ resource: 'candidate', action: 'update' })
+  changeStatus(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ChangeCandidateStatusDto,
+  ) {
+    return this.recruitmentService.changeCandidateStatus(user, id, dto.status, dto.reason);
+  }
+
+  @Post(':id/upload-cv')
+  @Permissions({ resource: 'candidate', action: 'update' })
+  uploadCv(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UploadCandidateCvDto,
+  ) {
+    return this.recruitmentService.uploadCandidateCv(user, id, dto.cvUrl);
+  }
 }
 
 @Controller('interviews')
@@ -186,4 +214,53 @@ class InterviewController {
   }
 }
 
-export { JobRequisitionController, CandidateController, InterviewController };
+@Controller('recruitment')
+class RecruitmentReportController {
+  constructor(private readonly recruitmentService: RecruitmentService) {}
+
+  @Get('overview')
+  @Permissions({ resource: 'recruitment', action: 'read' })
+  overview() {
+    return this.recruitmentService.getRecruitmentOverview();
+  }
+
+  @Get('staff-sources')
+  @Permissions({ resource: 'recruitment', action: 'read' })
+  staffSources(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.recruitmentService.getStaffSources(
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
+  }
+
+  @Get('intern-sources')
+  @Permissions({ resource: 'recruitment', action: 'read' })
+  internSources(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.recruitmentService.getInternSources(
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
+  }
+
+  @Get('intern-educations')
+  @Permissions({ resource: 'recruitment', action: 'read' })
+  internEducations(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('branchId') branchId?: string,
+  ) {
+    return this.recruitmentService.getInternEducations(
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+      branchId,
+    );
+  }
+}
+
+export { JobRequisitionController, CandidateController, InterviewController, RecruitmentReportController };

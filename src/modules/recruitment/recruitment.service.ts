@@ -13,6 +13,8 @@ import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
 import { CreateInterviewDto } from './dto/create-interview.dto';
 import { UpdateInterviewDto } from './dto/update-interview.dto';
+import { ChangeCandidateStatusDto } from './dto/change-candidate-status.dto';
+import { UploadCandidateCvDto } from './dto/upload-candidate-cv.dto';
 
 @Injectable()
 export class RecruitmentService {
@@ -522,6 +524,97 @@ export class RecruitmentService {
     return updated;
   }
 
+  async cloneCandidate(user: AuthUser, id: string) {
+    const existing = await this.prisma.candidate.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Candidate not found');
+
+    const cloned = await this.prisma.candidate.create({
+      data: {
+        fullName: existing.fullName,
+        email: existing.email,
+        phone: existing.phone,
+        resumeUrl: existing.resumeUrl,
+        cvUrl: existing.cvUrl,
+        avatarUrl: existing.avatarUrl,
+        source: existing.source,
+        status: CandidateStatus.NEW,
+        notes: existing.notes,
+        jobRequisitionId: existing.jobRequisitionId,
+        educationId: existing.educationId,
+        branchId: existing.branchId,
+        cvSourceId: existing.cvSourceId,
+        assignTo: existing.assignTo,
+      },
+    });
+
+    await this.auditService.log({
+      actor: this.toAuditActor(user),
+      action: 'CANDIDATE_CLONED',
+      entityType: 'CANDIDATE',
+      entityId: cloned.id,
+      newData: cloned,
+    });
+
+    return cloned;
+  }
+
+  async changeCandidateStatus(user: AuthUser, id: string, newStatus: CandidateStatus, reason?: string) {
+    const existing = await this.prisma.candidate.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Candidate not found');
+
+    if (existing.status === CandidateStatus.ONBOARDED && newStatus !== CandidateStatus.ONBOARDED) {
+      throw new BadRequestException('Cannot change status backwards from ONBOARDED');
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const candidate = await tx.candidate.update({
+        where: { id },
+        data: { status: newStatus },
+      });
+
+      if (newStatus === CandidateStatus.ONBOARDED && existing.status !== CandidateStatus.ONBOARDED) {
+        await tx.jobRequisition.update({
+          where: { id: candidate.jobRequisitionId },
+          data: { status: JobRequisitionStatus.FILLED, closedAt: new Date() },
+        });
+      }
+
+      return candidate;
+    });
+
+    await this.auditService.log({
+      actor: this.toAuditActor(user),
+      action: 'CANDIDATE_STATUS_CHANGED',
+      entityType: 'CANDIDATE',
+      entityId: id,
+      oldData: { status: existing.status, reason },
+      newData: { status: newStatus },
+    });
+
+    return updated;
+  }
+
+  async uploadCandidateCv(user: AuthUser, id: string, cvUrl: string) {
+    const existing = await this.prisma.candidate.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Candidate not found');
+
+    const updated = await this.prisma.candidate.update({
+      where: { id },
+      data: { cvUrl: cvUrl.trim() },
+    });
+
+    await this.auditService.log({
+      actor: this.toAuditActor(user),
+      action: 'CANDIDATE_CV_UPLOADED',
+      entityType: 'CANDIDATE',
+      entityId: id,
+      oldData: { cvUrl: existing.cvUrl },
+      newData: { cvUrl: updated.cvUrl },
+    });
+
+    return updated;
+  }
+
   async closeRequisition(user: AuthUser, id: string) {
     const existing = await this.prisma.jobRequisition.findUnique({
       where: { id },
@@ -594,6 +687,148 @@ export class RecruitmentService {
   }
 
   // ─── Helpers ───
+
+  // ─── Reports ───
+
+  async getRecruitmentOverview() {
+    const candidates = await this.prisma.candidate.findMany({
+      select: { status: true, source: true },
+    });
+    const requisitions = await this.prisma.jobRequisition.findMany({
+      select: { status: true },
+    });
+
+    const candidatesByStatus = this.aggregateCounts(
+      candidates.map((c) => c.status),
+    );
+    const requisitionsByStatus = this.aggregateCounts(
+      requisitions.map((r) => r.status),
+    );
+    const candidatesBySource = this.aggregateCounts(
+      candidates.map((c) => c.source ?? 'Unknown'),
+    );
+
+    return {
+      candidatesByStatus,
+      requisitionsByStatus,
+      candidatesBySource,
+    };
+  }
+
+  async getStaffSources(startDate?: Date, endDate?: Date) {
+    const dateFilter = this.buildDateFilter(startDate, endDate);
+
+    const results = await this.prisma.candidate.findMany({
+      where: {
+        jobRequisition: { type: RequisitionType.STAFF },
+        ...(dateFilter && { createdAt: dateFilter }),
+      },
+      select: {
+        cvSourceId: true,
+        cvSource: { select: { id: true, name: true } },
+      },
+    });
+
+    const grouped = new Map<string, { id: string | null; name: string; count: number }>();
+    for (const r of results) {
+      const key = r.cvSourceId ?? '__none';
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        grouped.set(key, {
+          id: r.cvSource?.id ?? null,
+          name: r.cvSource?.name ?? 'Unknown',
+          count: 1,
+        });
+      }
+    }
+
+    return Array.from(grouped.values());
+  }
+
+  async getInternSources(startDate?: Date, endDate?: Date) {
+    const dateFilter = this.buildDateFilter(startDate, endDate);
+
+    const results = await this.prisma.candidate.findMany({
+      where: {
+        jobRequisition: { type: RequisitionType.INTERN },
+        ...(dateFilter && { createdAt: dateFilter }),
+      },
+      select: {
+        cvSourceId: true,
+        cvSource: { select: { id: true, name: true } },
+      },
+    });
+
+    const grouped = new Map<string, { id: string | null; name: string; count: number }>();
+    for (const r of results) {
+      const key = r.cvSourceId ?? '__none';
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        grouped.set(key, {
+          id: r.cvSource?.id ?? null,
+          name: r.cvSource?.name ?? 'Unknown',
+          count: 1,
+        });
+      }
+    }
+
+    return Array.from(grouped.values());
+  }
+
+  async getInternEducations(startDate?: Date, endDate?: Date, branchId?: string) {
+    const dateFilter = this.buildDateFilter(startDate, endDate);
+
+    const results = await this.prisma.candidate.findMany({
+      where: {
+        jobRequisition: { type: RequisitionType.INTERN },
+        ...(dateFilter && { createdAt: dateFilter }),
+        ...(branchId && { branchId }),
+      },
+      select: {
+        educationId: true,
+        education: { select: { id: true, name: true } },
+      },
+    });
+
+    const grouped = new Map<string, { id: string | null; name: string; count: number }>();
+    for (const r of results) {
+      const key = r.educationId ?? '__none';
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        grouped.set(key, {
+          id: r.education?.id ?? null,
+          name: r.education?.name ?? 'Unknown',
+          count: 1,
+        });
+      }
+    }
+
+    return Array.from(grouped.values());
+  }
+
+  // ─── Helpers ───
+
+  private buildDateFilter(startDate?: Date, endDate?: Date) {
+    if (!startDate && !endDate) return undefined;
+    const filter: { gte?: Date; lte?: Date } = {};
+    if (startDate) filter.gte = startDate;
+    if (endDate) filter.lte = endDate;
+    return filter;
+  }
+
+  private aggregateCounts<T extends string>(values: T[]): { key: T; count: number }[] {
+    const map = new Map<T, number>();
+    for (const value of values) {
+      map.set(value, (map.get(value) ?? 0) + 1);
+    }
+    return Array.from(map.entries()).map(([key, count]) => ({ key, count }));
+  }
 
   private toAuditActor(user: AuthUser): { id: string; role: Role } {
     return {

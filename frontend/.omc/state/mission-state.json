@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-07T03:00:58.094Z",
+  "updatedAt": "2026-05-07T04:43:21.528Z",
   "missions": [
     {
       "id": "session:3f78c81d-e10d-47e0-8e9b-fb22b79b78b8:none",
@@ -7,15 +7,15 @@
       "name": "none",
       "objective": "Session mission",
       "createdAt": "2026-05-07T00:50:26.247Z",
-      "updatedAt": "2026-05-07T03:00:58.094Z",
+      "updatedAt": "2026-05-07T04:43:21.528Z",
       "status": "running",
-      "workerCount": 2,
+      "workerCount": 32,
       "taskCounts": {
-        "total": 2,
+        "total": 32,
         "pending": 0,
         "blocked": 0,
-        "inProgress": 1,
-        "completed": 1,
+        "inProgress": 2,
+        "completed": 30,
         "failed": 0
       },
       "agents": [
@@ -27,7 +27,7 @@
           "currentStep": null,
           "latestUpdate": "completed",
           "completedSummary": null,
-          "updatedAt": "2026-05-07T03:00:58.094Z"
+          "updatedAt": "2026-05-07T04:17:44.522Z"
         },
         {
           "name": "general-purpose:ab0e8aa",
@@ -38,40 +38,340 @@
           "latestUpdate": null,
           "completedSummary": null,
           "updatedAt": "2026-05-07T01:05:23.587Z"
+        },
+        {
+          "name": "general-purpose:ac7fb8e",
+          "role": "general-purpose",
+          "ownership": "ac7fb8edb2d4481d1",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:14:17.944Z"
+        },
+        {
+          "name": "agent-onsite:a28ccac",
+          "role": "agent-onsite",
+          "ownership": "a28ccac6a427792c5",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:38:48.334Z"
+        },
+        {
+          "name": "agent-timesheet:ac8066b",
+          "role": "agent-timesheet",
+          "ownership": "ac8066b5ab6c34ba3",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:48.075Z"
+        },
+        {
+          "name": "agent-recruitment-reports:a73cd4e",
+          "role": "agent-recruitment-reports",
+          "ownership": "a73cd4ec82d05729d",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:42:13.654Z"
+        },
+        {
+          "name": "agent-candidate:a8b5ee6",
+          "role": "agent-candidate",
+          "ownership": "a8b5ee6f103d0e78b",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:38:34.771Z"
+        },
+        {
+          "name": "agent-frontend-pages:a39c533",
+          "role": "agent-frontend-pages",
+          "ownership": "a39c533966cc87417",
+          "status": "running",
+          "currentStep": null,
+          "latestUpdate": null,
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:36:23.096Z"
+        },
+        {
+          "name": "agent-candidate:ac27549",
+          "role": "agent-candidate",
+          "ownership": "ac27549da9d825001",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:38:57.812Z"
+        },
+        {
+          "name": "agent-onsite:a8fea7e",
+          "role": "agent-onsite",
+          "ownership": "a8fea7ee1d5bf3590",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:07.618Z"
+        },
+        {
+          "name": "agent-candidate:af7c98b",
+          "role": "agent-candidate",
+          "ownership": "af7c98ba9ccc4d85c",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:01.949Z"
+        },
+        {
+          "name": "agent-candidate:ac883a2",
+          "role": "agent-candidate",
+          "ownership": "ac883a24f6f188183",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:21.801Z"
+        },
+        {
+          "name": "agent-onsite:a6892a4",
+          "role": "agent-onsite",
+          "ownership": "a6892a418a5f8a29b",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:17.321Z"
+        },
+        {
+          "name": "agent-onsite:a5cb3f7",
+          "role": "agent-onsite",
+          "ownership": "a5cb3f7596f6abf55",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:32.483Z"
+        },
+        {
+          "name": "agent-candidate:a298046",
+          "role": "agent-candidate",
+          "ownership": "a2980469e12297a3d",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:32.745Z"
+        },
+        {
+          "name": "agent-onsite:addbf67",
+          "role": "agent-onsite",
+          "ownership": "addbf67d15d19b153",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:41.794Z"
+        },
+        {
+          "name": "agent-candidate:afb8ff0",
+          "role": "agent-candidate",
+          "ownership": "afb8ff0c26afde93c",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:41.564Z"
+        },
+        {
+          "name": "agent-candidate:a3ce15c",
+          "role": "agent-candidate",
+          "ownership": "a3ce15c679670579c",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:46.235Z"
+        },
+        {
+          "name": "agent-onsite:afde23d",
+          "role": "agent-onsite",
+          "ownership": "afde23dd90890bc97",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:46.330Z"
+        },
+        {
+          "name": "agent-onsite:afaebe5",
+          "role": "agent-onsite",
+          "ownership": "afaebe50bdafa989e",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:49.722Z"
+        },
+        {
+          "name": "agent-timesheet:a924d27",
+          "role": "agent-timesheet",
+          "ownership": "a924d27db653e148e",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:40:08.024Z"
+        },
+        {
+          "name": "agent-onsite:a870886",
+          "role": "agent-onsite",
+          "ownership": "a8708866690bfb978",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:39:53.230Z"
+        },
+        {
+          "name": "agent-timesheet:af72f98",
+          "role": "agent-timesheet",
+          "ownership": "af72f98507c71def3",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:40:24.500Z"
+        },
+        {
+          "name": "agent-timesheet:a9b839a",
+          "role": "agent-timesheet",
+          "ownership": "a9b839a9c5c4cf724",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:40:33.122Z"
+        },
+        {
+          "name": "agent-timesheet:a62246e",
+          "role": "agent-timesheet",
+          "ownership": "a62246ef0a77a293c",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:40:40.728Z"
+        },
+        {
+          "name": "agent-recruitment-reports:af4cf8d",
+          "role": "agent-recruitment-reports",
+          "ownership": "af4cf8dc1ed107507",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:42:45.665Z"
+        },
+        {
+          "name": "agent-recruitment-reports:aab7b62",
+          "role": "agent-recruitment-reports",
+          "ownership": "aab7b62fc509dd0ac",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:42:55.430Z"
+        },
+        {
+          "name": "agent-recruitment-reports:a89c3b4",
+          "role": "agent-recruitment-reports",
+          "ownership": "a89c3b450a6f933d3",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:43:04.704Z"
+        },
+        {
+          "name": "agent-recruitment-reports:a4e3ebc",
+          "role": "agent-recruitment-reports",
+          "ownership": "a4e3ebc77879e22db",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:43:14.361Z"
+        },
+        {
+          "name": "agent-candidate:a5d3718",
+          "role": "agent-candidate",
+          "ownership": "a5d371815cb60fcf5",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:43:17.688Z"
+        },
+        {
+          "name": "agent-recruitment-reports:a8d9011",
+          "role": "agent-recruitment-reports",
+          "ownership": "a8d90114827787718",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:43:18.609Z"
+        },
+        {
+          "name": "agent-recruitment-reports:a3bbbb0",
+          "role": "agent-recruitment-reports",
+          "ownership": "a3bbbb093289d5144",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-05-07T04:43:21.528Z"
         }
       ],
       "timeline": [
         {
-          "id": "session-start:a073cae642adeffa2:2026-05-07T00:50:26.247Z",
-          "at": "2026-05-07T00:50:26.247Z",
-          "kind": "update",
-          "agent": "general-purpose:a073cae",
-          "detail": "started general-purpose:a073cae",
-          "sourceKey": "session-start:a073cae642adeffa2"
-        },
-        {
-          "id": "session-stop:a073cae642adeffa2:2026-05-07T00:59:33.101Z",
-          "at": "2026-05-07T00:59:33.101Z",
+          "id": "session-stop:a5d371815cb60fcf5:2026-05-07T04:43:17.688Z",
+          "at": "2026-05-07T04:43:17.688Z",
           "kind": "completion",
-          "agent": "general-purpose:a073cae",
+          "agent": "agent-candidate:a5d3718",
           "detail": "completed",
-          "sourceKey": "session-stop:a073cae642adeffa2"
+          "sourceKey": "session-stop:a5d371815cb60fcf5"
         },
         {
-          "id": "session-start:ab0e8aa7cb8b50d1a:2026-05-07T01:05:23.587Z",
-          "at": "2026-05-07T01:05:23.587Z",
-          "kind": "update",
-          "agent": "general-purpose:ab0e8aa",
-          "detail": "started general-purpose:ab0e8aa",
-          "sourceKey": "session-start:ab0e8aa7cb8b50d1a"
-        },
-        {
-          "id": "session-stop:afe3a844f2a7aa80e:2026-05-07T03:00:58.094Z",
-          "at": "2026-05-07T03:00:58.094Z",
+          "id": "session-stop:a8d90114827787718:2026-05-07T04:43:18.609Z",
+          "at": "2026-05-07T04:43:18.609Z",
           "kind": "completion",
-          "agent": "general-purpose:a073cae",
+          "agent": "agent-recruitment-reports:a8d9011",
           "detail": "completed",
-          "sourceKey": "session-stop:afe3a844f2a7aa80e"
+          "sourceKey": "session-stop:a8d90114827787718"
+        },
+        {
+          "id": "session-start:a3bbbb093289d5144:2026-05-07T04:43:18.797Z",
+          "at": "2026-05-07T04:43:18.797Z",
+          "kind": "update",
+          "agent": "agent-recruitment-reports:a3bbbb0",
+          "detail": "started agent-recruitment-reports:a3bbbb0",
+          "sourceKey": "session-start:a3bbbb093289d5144"
+        },
+        {
+          "id": "session-stop:a3bbbb093289d5144:2026-05-07T04:43:21.528Z",
+          "at": "2026-05-07T04:43:21.528Z",
+          "kind": "completion",
+          "agent": "agent-recruitment-reports:a3bbbb0",
+          "detail": "completed",
+          "sourceKey": "session-stop:a3bbbb093289d5144"
         }
       ]
     }

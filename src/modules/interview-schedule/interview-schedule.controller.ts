@@ -8,6 +8,9 @@ import {
   Put,
   Delete,
 } from '@nestjs/common';
+import { CurrentUser } from '@/modules/identity/decorators/current-user.decorator';
+import { Permissions } from '@/modules/identity/decorators/permissions.decorator';
+import { AuthUser } from '@/modules/identity/auth-user.type';
 import { InterviewScheduleService } from './interview-schedule.service';
 import { CreateInterviewScheduleDto } from './dto/create-interview-schedule.dto';
 import { UpdateInterviewScheduleDto } from './dto/update-interview-schedule.dto';
@@ -42,5 +45,14 @@ export class InterviewScheduleController {
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.interviewScheduleService.remove(id);
+  }
+
+  @Post(':id/send-mail')
+  @Permissions({ resource: 'interview', action: 'update' })
+  sendMail(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.interviewScheduleService.sendMail(user, id);
   }
 }

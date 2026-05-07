@@ -31,6 +31,7 @@ import { TimesheetEntryModule } from './modules/timesheet-entry/timesheet-entry.
 import { ReviewInternModule } from './modules/review-intern/review-intern.module';
 import { TeamBuildingRequestModule } from './modules/team-building-request/team-building-request.module';
 import { WorkingTimeRequestModule } from './modules/working-time-request/working-time-request.module';
+import { OnsiteRequestModule } from './modules/onsite-request/onsite-request.module';
 import { SystemSettingModule } from './modules/system-setting/system-setting.module';
 import { LeaveTypeModule } from './modules/leave-type/leave-type.module';
 import { OffDayModule } from './modules/off-day/off-day.module';
@@ -80,6 +81,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     ReviewInternModule,
     TeamBuildingRequestModule,
     WorkingTimeRequestModule,
+    OnsiteRequestModule,
     SystemSettingModule,
     LeaveTypeModule,
     OffDayModule,

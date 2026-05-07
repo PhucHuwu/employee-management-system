@@ -12,6 +12,9 @@ import {
 import { TimesheetEntryService } from './timesheet-entry.service';
 import { CreateTimesheetEntryDto } from './dto/create-timesheet-entry.dto';
 import { UpdateTimesheetEntryDto } from './dto/update-timesheet-entry.dto';
+import { ComplainTimesheetEntryDto } from './dto/complain-timesheet-entry.dto';
+import { RejectTimesheetEntryDto } from './dto/reject-timesheet-entry.dto';
+import { BulkApproveTimesheetEntryDto } from './dto/bulk-approve-timesheet-entry.dto';
 
 @Controller('timesheet-entries')
 export class TimesheetEntryController {
@@ -54,13 +57,29 @@ export class TimesheetEntryController {
     return this.timesheetEntryService.submit(id);
   }
 
+  @Post(':id/complain')
+  complain(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ComplainTimesheetEntryDto,
+  ) {
+    return this.timesheetEntryService.complain(id, dto);
+  }
+
   @Post(':id/approve')
   approve(@Param('id', ParseUUIDPipe) id: string) {
     return this.timesheetEntryService.approve(id);
   }
 
+  @Post('bulk-approve')
+  bulkApprove(@Body() dto: BulkApproveTimesheetEntryDto) {
+    return this.timesheetEntryService.bulkApprove(dto.ids);
+  }
+
   @Post(':id/reject')
-  reject(@Param('id', ParseUUIDPipe) id: string) {
-    return this.timesheetEntryService.reject(id);
+  reject(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: RejectTimesheetEntryDto,
+  ) {
+    return this.timesheetEntryService.reject(id, dto);
   }
 }

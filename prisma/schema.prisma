@@ -144,6 +144,20 @@ enum WorkingTimeStatus {
   REJECTED
 }
 
+enum OnsiteRequestPeriod {
+  FULL_DAY
+  AM
+  PM
+  HOURS
+}
+
+enum OnsiteRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 model Department {
   id        String     @id @default(uuid()) @db.Uuid
   name      String     @db.VarChar(255)
@@ -231,6 +245,7 @@ model Employee {
   teamBuildingRequests TeamBuildingRequest[]
   teamBuildingParticipants TeamBuildingParticipant[]
   workingTimeRequests WorkingTimeRequest[]
+  onsiteRequests    OnsiteRequest[]
   shadowTargets    ProjectMemberShadow[] @relation(name: "ShadowTargetEmployee")
   userAccount      UserAccount?
 
@@ -881,6 +896,7 @@ model TimesheetEntry {
   normalWorkingTime   Float                @default(0) @map("normal_working_time")
   overtime            Float                @default(0)
   note                String?
+  complainNote        String?              @map("complain_note")
   status              TimesheetEntryStatus @default(DRAFT)
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
@@ -972,6 +988,24 @@ model WorkingTimeRequest {
 
   @@index([employeeId, status])
   @@map("working_time_requests")
+}
+
+model OnsiteRequest {
+  id          String              @id @default(uuid()) @db.Uuid
+  requestDate DateTime            @map("request_date") @db.Date
+  period      OnsiteRequestPeriod
+  hours       Float?
+  reason      String?
+  status      OnsiteRequestStatus @default(PENDING)
+  approvedBy  String?             @map("approved_by") @db.Uuid
+  approvedAt  DateTime?           @map("approved_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  employeeId  String              @map("employee_id") @db.Uuid
+  employee    Employee            @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@index([requestDate, status])
+  @@map("onsite_requests")
 }
 
 model SystemSetting {

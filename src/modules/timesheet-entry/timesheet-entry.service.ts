@@ -2,16 +2,61 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { CreateTimesheetEntryDto } from './dto/create-timesheet-entry.dto';
 import { UpdateTimesheetEntryDto } from './dto/update-timesheet-entry.dto';
+import { ComplainTimesheetEntryDto } from './dto/complain-timesheet-entry.dto';
+import { RejectTimesheetEntryDto } from './dto/reject-timesheet-entry.dto';
 
 @Injectable()
 export class TimesheetEntryService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private async validateDayConstraints(
+    entryDate: Date,
+    employeeId: string,
+    normalWorkingTime: number,
+    overtime: number,
+    excludeId?: string,
+  ) {
+    const startOfDay = new Date(entryDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(entryDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const offDay = await this.prisma.offDay.findUnique({
+      where: { offDate: startOfDay },
+    });
+    if (offDay) {
+      throw new BadRequestException('Cannot log timesheet on an off day');
+    }
+
+    const existingEntries = await this.prisma.timesheetEntry.findMany({
+      where: {
+        employeeId,
+        entryDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+    });
+
+    const totalNormal = existingEntries.reduce((sum, e) => sum + e.normalWorkingTime, 0) + normalWorkingTime;
+    if (totalNormal > 8) {
+      throw new BadRequestException('Total normal working time cannot exceed 8 hours per day');
+    }
+
+    const totalHours = existingEntries.reduce((sum, e) => sum + e.normalWorkingTime + e.overtime, 0) + normalWorkingTime + overtime;
+    if (totalHours > 24) {
+      throw new BadRequestException('Total working time cannot exceed 24 hours per day');
+    }
+  }
 
   async create(dto: CreateTimesheetEntryDto, employeeId: string) {
     const total = dto.normalWorkingTime + (dto.overtime ?? 0);
     if (total > 24) {
       throw new BadRequestException('Total working time cannot exceed 24 hours per day');
     }
+
+    await this.validateDayConstraints(new Date(dto.entryDate), employeeId, dto.normalWorkingTime, dto.overtime ?? 0);
 
     return this.prisma.timesheetEntry.create({
       data: {
@@ -59,6 +104,16 @@ export class TimesheetEntryService {
       throw new BadRequestException('Total working time cannot exceed 24 hours per day');
     }
 
+    if (dto.entryDate || dto.normalWorkingTime !== undefined || dto.overtime !== undefined) {
+      await this.validateDayConstraints(
+        dto.entryDate ? new Date(dto.entryDate) : existing.entryDate,
+        existing.employeeId,
+        normal,
+        overtime,
+        id,
+      );
+    }
+
     return this.prisma.timesheetEntry.update({
       where: { id },
       data: {
@@ -93,6 +148,21 @@ export class TimesheetEntryService {
     });
   }
 
+  async complain(id: string, dto: ComplainTimesheetEntryDto) {
+    const existing = await this.findOne(id);
+    if (existing.status !== 'PENDING' && existing.status !== 'REJECTED') {
+      throw new BadRequestException('Can only complain about pending or rejected entries');
+    }
+    return this.prisma.timesheetEntry.update({
+      where: { id },
+      data: {
+        complainNote: dto.complainNote.trim(),
+        status: 'DRAFT',
+      },
+      include: { employee: true, project: true, task: true },
+    });
+  }
+
   async approve(id: string) {
     const existing = await this.findOne(id);
     if (existing.status !== 'PENDING') {
@@ -105,14 +175,42 @@ export class TimesheetEntryService {
     });
   }
 
-  async reject(id: string) {
+  async bulkApprove(ids: string[]) {
+    const entries = await this.prisma.timesheetEntry.findMany({
+      where: { id: { in: ids } },
+    });
+
+    if (entries.length !== ids.length) {
+      throw new NotFoundException('Some timesheet entries were not found');
+    }
+
+    const nonPending = entries.filter((e) => e.status !== 'PENDING');
+    if (nonPending.length > 0) {
+      throw new BadRequestException('All entries must be in PENDING status to be approved');
+    }
+
+    await this.prisma.timesheetEntry.updateMany({
+      where: { id: { in: ids } },
+      data: { status: 'APPROVED' },
+    });
+
+    return this.prisma.timesheetEntry.findMany({
+      where: { id: { in: ids } },
+      include: { employee: true, project: true, task: true },
+    });
+  }
+
+  async reject(id: string, dto: RejectTimesheetEntryDto) {
     const existing = await this.findOne(id);
     if (existing.status !== 'PENDING') {
       throw new BadRequestException('Only pending entries can be rejected');
     }
     return this.prisma.timesheetEntry.update({
       where: { id },
-      data: { status: 'REJECTED' },
+      data: {
+        status: 'REJECTED',
+        note: dto.reason.trim(),
+      },
       include: { employee: true, project: true, task: true },
     });
   }

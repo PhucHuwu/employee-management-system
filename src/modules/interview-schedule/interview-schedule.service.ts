@@ -1,11 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/prisma/prisma.service';
+import { AuditService } from '@/modules/audit/audit.service';
+import { AuthUser } from '@/modules/identity/auth-user.type';
+import { Role } from '@prisma/client';
 import { CreateInterviewScheduleDto } from './dto/create-interview-schedule.dto';
 import { UpdateInterviewScheduleDto } from './dto/update-interview-schedule.dto';
 
 @Injectable()
 export class InterviewScheduleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async create(dto: CreateInterviewScheduleDto) {
     return this.prisma.interviewSchedule.create({
@@ -58,5 +64,19 @@ export class InterviewScheduleService {
   async remove(id: string) {
     await this.findOne(id);
     return this.prisma.interviewSchedule.delete({ where: { id } });
+  }
+
+  async sendMail(user: AuthUser, id: string) {
+    const schedule = await this.findOne(id);
+
+    await this.auditService.log({
+      actor: { id: user.id, role: user.role },
+      action: 'INTERVIEW_SCHEDULE_MAIL_SENT',
+      entityType: 'INTERVIEW_SCHEDULE',
+      entityId: id,
+      newData: { candidateId: schedule.candidateId, scheduledAt: schedule.scheduledAt },
+    });
+
+    return { sent: true };
   }
 }

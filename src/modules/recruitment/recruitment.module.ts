@@ -4,12 +4,13 @@ import {
   JobRequisitionController,
   CandidateController,
   InterviewController,
+  RecruitmentReportController,
 } from './recruitment.controller';
 import { RecruitmentService } from './recruitment.service';
 
 @Module({
   imports: [AuditModule],
-  controllers: [JobRequisitionController, CandidateController, InterviewController],
+  controllers: [JobRequisitionController, CandidateController, InterviewController, RecruitmentReportController],
   providers: [RecruitmentService],
   exports: [RecruitmentService],
 })

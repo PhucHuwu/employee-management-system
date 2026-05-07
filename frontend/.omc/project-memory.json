@@ -42,7 +42,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd /Users/n0x/WebStorm/htql/employee-management-system/frontend && npm run build",
+    "buildCommand": "npm run build",
     "testCommand": null,
     "lintCommand": "npm run lint",
     "devCommand": "npm run dev",
@@ -154,14 +154,80 @@
   "hotPaths": [
     {
       "path": "components/app-sidebar.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1778122240654,
+      "accessCount": 4,
+      "lastAccessed": 1778128611075,
       "type": "file"
     },
     {
       "path": "lib/breadcrumb-map.ts",
+      "accessCount": 3,
+      "lastAccessed": 1778128611114,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/skills/page.tsx",
       "accessCount": 2,
-      "lastAccessed": 1778122257453,
+      "lastAccessed": 1778128970941,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/interview-schedules/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778128998925,
+      "type": "file"
+    },
+    {
+      "path": "lib/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778128593253,
+      "type": "file"
+    },
+    {
+      "path": "lib/api/endpoints.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778128593685,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/branches/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778128615757,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/leave-types/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778128688013,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/off-days/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778128743699,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/system-settings/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778128795265,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/project-tasks/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778128845866,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/timesheet-entries/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778128977112,
+      "type": "file"
+    },
+    {
+      "path": "app/(protected)/timesheet-approvals/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778129004216,
       "type": "file"
     }
   ],
