@@ -30,6 +30,14 @@ Thứ nhất, hệ thống phải chuẩn hóa quy trình nhân sự cốt lõi 
 
 Tóm lại, mục tiêu của hệ thống không dừng ở “số hóa biểu mẫu”, mà hướng đến “nâng cấp năng lực quản trị doanh nghiệp” thông qua hệ thống thông tin tích hợp.
 
+| Nhóm mục tiêu | Nội dung trọng tâm | Kết quả quản lý kỳ vọng |
+|---|---|---|
+| Chuẩn hóa quy trình | Đồng nhất cách xử lý nghiệp vụ nhân sự giữa các phòng ban | Giảm sai sót và giảm phụ thuộc cá nhân |
+| Quản trị dữ liệu tập trung | Dữ liệu nhân sự, công việc, dự án và tài chính cùng một hệ thống | Tăng độ tin cậy báo cáo điều hành |
+| Kiểm soát truy cập | Đúng vai trò, đúng phạm vi dữ liệu | Bảo mật thông tin và tăng tuân thủ nội bộ |
+| Giám sát theo thời gian | Theo dõi hiện diện, tiến độ, chi phí theo chu kỳ ngắn | Ra quyết định nhanh hơn |
+| Hỗ trợ quyết định trung hạn | Dựa trên xu hướng dữ liệu thay vì cảm tính | Tối ưu kế hoạch nhân lực và dự án |
+
 ## 1.3. Phạm vi nghiên cứu và áp dụng
 
 Phạm vi của hệ thống bao gồm toàn bộ chuỗi nghiệp vụ quản lý nhân sự có trong doanh nghiệp vận hành theo dự án: quản trị nhân viên, phòng ban, vị trí/chức vụ, lịch làm việc và yêu cầu nghỉ/làm việc từ xa, chấm công theo đầu việc, báo cáo tiến độ hằng ngày, quản trị dự án và khách hàng, tuyển dụng và tiếp nhận nhân sự mới, quản lý đào tạo, đánh giá thực tập sinh theo năng lực, quản trị ngân sách và chi phí dự án, quản lý hóa đơn và công nợ, cùng các phân hệ phân quyền - cấu hình - kiểm soát.
@@ -41,6 +49,25 @@ Hệ thống được định vị là nền tảng quản lý cấp doanh nghi�
 Đối tượng sử dụng không đồng nhất về mục tiêu nghiệp vụ. Quản trị viên quan tâm đến tính toàn vẹn hệ thống, chính sách quyền và vận hành ổn định. Quản lý dự án/trưởng nhóm quan tâm đến năng lực đội nhóm, tiến độ công việc, tỷ lệ hiện diện, và hiệu quả nguồn lực theo dự án. Bộ phận nhân sự/tuyển dụng quan tâm đến chuỗi xử lý ứng viên, chất lượng ứng viên, chính sách nhân sự và đánh giá phát triển. Nhân viên quan tâm đến việc thực hiện thao tác đúng quy trình: gửi yêu cầu, ghi nhận công việc, cập nhật thông tin phục vụ quản lý.
 
 Việc phân định rõ nhóm người dùng và mục tiêu sử dụng giúp hệ thống được thiết kế theo định hướng “thông tin đúng vai trò”, giảm nhiễu dữ liệu, tăng hiệu suất vận hành, và tăng chất lượng quyết định ở từng cấp quản trị.
+
+```mermaid
+flowchart LR
+  A[Quản trị viên] --> A1[Cấu hình hệ thống]
+  A --> A2[Quản lý phân quyền]
+  A --> A3[Giám sát tổng thể]
+
+  M[Quản lý dự án / Trưởng nhóm] --> M1[Duyệt yêu cầu]
+  M --> M2[Điều phối nguồn lực]
+  M --> M3[Theo dõi hiệu suất]
+
+  H[Nhân sự / Tuyển dụng] --> H1[Quản lý ứng viên]
+  H --> H2[Quản lý chính sách nhân sự]
+  H --> H3[Theo dõi đào tạo]
+
+  E[Nhân viên] --> E1[Gửi yêu cầu]
+  E --> E2[Báo cáo công việc]
+  E --> E3[Chấm công theo đầu việc]
+```
 
 ---
 
@@ -76,6 +103,16 @@ Hệ thống hỗ trợ ra quyết định (DSS) trong doanh nghiệp nhân sự
 
 Hệ thống trong đề tài hỗ trợ DSS qua các phân hệ tổng hợp và báo cáo, kết hợp với dữ liệu giao dịch từ lịch làm việc, báo cáo công việc hằng ngày, chấm công theo đầu việc, dự án và tài chính vận hành.
 
+```mermaid
+flowchart TD
+  D1[Dữ liệu vận hành hằng ngày] --> D2[Xử lý và chuẩn hóa dữ liệu]
+  D2 --> D3[Báo cáo tổng hợp]
+  D2 --> D4[Cảnh báo ngoại lệ]
+  D3 --> Q1[Quyết định điều phối nhân sự]
+  D3 --> Q2[Quyết định kế hoạch tuyển dụng]
+  D4 --> Q3[Quyết định xử lý rủi ro vận hành]
+```
+
 ---
 
 # CHƯƠNG 3 — PHÂN TÍCH NGHIỆP VỤ VÀ CHỨC NĂNG HỆ THỐNG
@@ -87,6 +124,13 @@ Doanh nghiệp mục tiêu có các đặc điểm điển hình: nhân sự thu
 Các vấn đề thực tế doanh nghiệp cần giải quyết gồm: thiếu tầm nhìn tổng quan về hiện diện nhân sự theo ngày; khó xác định hiệu suất theo đầu việc và dự án; quy trình tuyển dụng và tiếp nhận nhân sự mới chưa liên thông với dữ liệu vận hành; thiếu công cụ đánh giá năng lực dựa trên tiêu chí chuẩn; khó kiểm soát công nợ và chi phí gắn với dự án; và thiếu cơ chế phân quyền đủ chặt ở môi trường đa vai trò.
 
 Hệ thống được xây dựng để giải quyết trực tiếp các vấn đề trên theo nguyên tắc: doanh nghiệp cần gì - hệ thống xử lý như thế nào - lợi ích quản trị thu được là gì.
+
+| Vấn đề nghiệp vụ | Biểu hiện trong thực tế | Tác động nếu không xử lý | Hướng xử lý bằng hệ thống |
+|---|---|---|---|
+| Dữ liệu nhân sự phân tán | Mỗi bộ phận lưu một kiểu | Báo cáo sai lệch, chậm quyết định | Chuẩn hóa dữ liệu và quy trình nhập |
+| Khó theo dõi hiện diện | Không biết chính xác ai vắng mặt | Điều phối nhân lực thiếu chính xác | Lịch tổng hợp và hàng đợi phê duyệt |
+| Thiếu đo lường hiệu suất | Không gắn giờ công với đầu việc | Đánh giá cảm tính, khó tối ưu nguồn lực | Chấm công theo đầu việc + báo cáo tiến độ |
+| Tuyển dụng thiếu liên thông | Dữ liệu ứng viên không nối với vận hành | Chậm bổ sung nhân sự, thất thoát dữ liệu | Chuỗi xử lý ứng viên và tiếp nhận tập trung |
 
 ## 3.2. Cụm chức năng quản trị nhân sự cốt lõi
 
@@ -122,6 +166,18 @@ Nghiệp vụ thực tế diễn ra theo chu trình: nhân viên gửi yêu cầ
 
 Dữ liệu đầu vào là loại yêu cầu, thời gian, lý do, người gửi; đầu ra là trạng thái phê duyệt, lịch hiện diện theo ngày và dữ liệu lịch sử quyết định. Dữ liệu này hỗ trợ thống kê tỷ lệ vắng mặt, mức độ tuân thủ chính sách, và năng lực bố trí nguồn lực theo dự án.
 
+```mermaid
+flowchart TD
+  N1[Nhân viên gửi yêu cầu] --> N2[Hệ thống kiểm tra điều kiện]
+  N2 -->|Hợp lệ| N3[Đưa vào hàng đợi chờ duyệt]
+  N2 -->|Không hợp lệ| N8[Phản hồi lý do từ chối]
+  N3 --> N4[Quản lý xem và ra quyết định]
+  N4 -->|Phê duyệt| N5[Cập nhật lịch hiện diện]
+  N4 -->|Từ chối| N6[Lưu lý do từ chối]
+  N5 --> N7[Ghi nhận lịch sử xử lý]
+  N6 --> N7
+```
+
 ### 3.3.2. Quản lý phép năm, giao dịch phép, loại phép và ngày nghỉ công ty
 
 Doanh nghiệp cần tách bạch hai vấn đề: quyền nghỉ theo chính sách và yêu cầu nghỉ cụ thể theo ngày. Chức năng leave balance và leave type/off day giải quyết chính xác bài toán đó. Nếu thiếu lớp dữ liệu phép năm, việc duyệt nghỉ dễ thiếu căn cứ và gây tranh chấp quyền lợi.
@@ -156,6 +212,14 @@ Mục tiêu quản lý của chức năng là đo lường mức độ sử dụ
 
 Actor gồm nhân viên, quản lý dự án/trưởng nhóm, và quản trị viên giám sát. Đầu vào là thời gian làm việc, đầu việc, dự án, ghi chú; đầu ra là bản ghi công việc có trạng thái phê duyệt và dữ liệu thống kê theo kỳ. Dữ liệu chấm công có ý nghĩa chiến lược vì liên kết trực tiếp với quản trị năng suất, chi phí lao động và hiệu quả dự án.
 
+| Thành phần nghiệp vụ | Nội dung |
+|---|---|
+| Mục tiêu | Đo mức sử dụng thời gian theo dự án và đầu việc |
+| Người tham gia | Nhân viên, quản lý dự án/trưởng nhóm, quản trị viên |
+| Dữ liệu đầu vào | Ngày làm việc, đầu việc, số giờ, ghi chú |
+| Kết quả đầu ra | Bản ghi chấm công theo trạng thái và báo cáo tổng hợp |
+| Giá trị quản lý | Đánh giá hiệu suất, cân bằng tải công việc, kiểm soát chi phí lao động |
+
 ### 3.4.3. Bảng điều khiển thống kê mức sử dụng nguồn lực và báo cáo ngoại lệ
 
 Doanh nghiệp cần một điểm nhìn tổng quan để chuyển dữ liệu báo cáo công việc hằng ngày, chấm công và lịch làm việc thành tín hiệu quản trị. Bảng điều khiển thống kê mức sử dụng nguồn lực và báo cáo ngoại lệ giải quyết nhu cầu này bằng cách tổng hợp chỉ số quan trọng và cho phép xem sâu dữ liệu chi tiết khi có bất thường.
@@ -187,6 +251,16 @@ Mục tiêu quản lý là tăng độ chính xác của phân tích công việ
 Mục tiêu quản lý là kiểm soát hiệu quả sử dụng ngân sách, tăng kỷ luật tài chính, và cải thiện dự báo dòng tiền. Nghiệp vụ thực tế gồm lập ngân sách, ghi nhận phát sinh chi phí, duyệt/từ chối đề nghị, phát hành hóa đơn, theo dõi trạng thái thanh toán và báo cáo công nợ.
 
 Actor tham gia gồm PM, bộ phận tài chính, Admin. Đầu vào là số liệu chi phí/doanh thu/chứng từ; đầu ra là báo cáo budget-vs-actual, trạng thái đề nghị chi phí, trạng thái hóa đơn và số liệu công nợ. Dữ liệu này hỗ trợ quyết định điều chỉnh kế hoạch dự án, đánh giá biên lợi nhuận và quản trị rủi ro thanh khoản.
+
+```mermaid
+flowchart LR
+  B1[Lập ngân sách dự án] --> B2[Phát sinh đề nghị chi phí]
+  B2 --> B3[Phê duyệt hoặc từ chối]
+  B3 --> B4[Cập nhật chi phí thực tế]
+  B4 --> B5[So sánh kế hoạch và thực tế]
+  B5 --> B6[Phát hành hóa đơn]
+  B6 --> B7[Theo dõi công nợ và thanh toán]
+```
 
 ## 3.6. Cụm chức năng tuyển dụng, đào tạo và phát triển năng lực
 
@@ -261,6 +335,27 @@ Mục tiêu quản lý là tăng độ tin cậy vận hành, giảm thời gian
 | Rủi ro truy cập dữ liệu | Quản trị định danh + phân quyền + phạm vi dữ liệu | Bảo mật và tuân thủ nội bộ |
 | Thiếu thông tin điều hành tổng quan | Bảng điều khiển thống kê + nhật ký kiểm soát | Ra quyết định nhanh và minh bạch |
 
+```mermaid
+mindmap
+  root((Vai trò quản lý của hệ thống))
+    Nhân sự cốt lõi
+      Hồ sơ tập trung
+      Cơ cấu tổ chức rõ ràng
+    Điều phối vận hành
+      Lịch hiện diện
+      Phê duyệt yêu cầu
+    Hiệu suất công việc
+      Báo cáo tiến độ
+      Chấm công theo đầu việc
+    Tài chính dự án
+      Ngân sách và chi phí
+      Hóa đơn và công nợ
+    Phát triển nhân lực
+      Tuyển dụng
+      Đào tạo
+      Đánh giá năng lực
+```
+
 ---
 
 # CHƯƠNG 4 — THIẾT KẾ HỆ THỐNG THEO GÓC NHÌN QUẢN TRỊ
@@ -285,6 +380,19 @@ flowchart LR
 Dữ liệu được tổ chức theo vòng đời nhân lực và vòng đời dự án, giúp doanh nghiệp theo dõi cả chiều “con người” lẫn chiều “kết quả kinh doanh”. Một thực thể nhân viên có thể nối với thông tin tổ chức, lịch làm việc, task thực hiện, đánh giá năng lực, đào tạo, chi phí lao động và trạng thái phát triển nghề nghiệp. Đây là nền tảng để thực hiện quản trị tích hợp thay vì quản lý từng phần.
 
 Về ý nghĩa quản lý, cách thiết kế dữ liệu này cho phép doanh nghiệp đặt các câu hỏi điều hành có chiều sâu, chẳng hạn: năng lực nào đang thiếu ở dự án có biên lợi nhuận thấp; nhóm nào có tỷ lệ vắng mặt cao và ảnh hưởng tiến độ; chương trình đào tạo nào tạo cải thiện hiệu suất rõ ràng.
+
+```mermaid
+erDiagram
+  NHAN_VIEN ||--o{ BAO_CAO_CONG_VIEC : ghi_nhan
+  NHAN_VIEN ||--o{ CHAM_CONG_DAU_VIEC : thuc_hien
+  NHAN_VIEN }o--o{ DU_AN : tham_gia
+  NHAN_VIEN ||--o{ YEU_CAU_LICH : gui
+  DU_AN ||--o{ HOA_DON : phat_hanh
+  DU_AN ||--o{ NGAN_SACH_DU_AN : quan_ly
+  DU_AN ||--o{ DE_NGHI_CHI_PHI : phat_sinh
+  UNG_VIEN ||--o{ PHONG_VAN : tham_gia
+  NHAN_VIEN ||--o{ HO_SO_DAO_TAO : hoc_tap
+```
 
 ## 4.3. Phân quyền và bảo mật trong tổ chức đa vai trò
 
@@ -318,6 +426,14 @@ Một chu kỳ vận hành điển hình có thể mô tả như sau: đầu k�
 
 Luồng vận hành này cho thấy hệ thống tạo chu trình thông tin khép kín từ phát sinh nghiệp vụ đến phản hồi quyết định quản lý.
 
+```mermaid
+flowchart TD
+  T1[Đầu kỳ: cập nhật kế hoạch nhân sự và dự án] --> T2[Trong kỳ: phát sinh yêu cầu và dữ liệu công việc]
+  T2 --> T3[Quản lý phê duyệt và điều phối]
+  T3 --> T4[Cuối kỳ: tổng hợp báo cáo hiệu suất và chi phí]
+  T4 --> T5[Ra quyết định cho kỳ tiếp theo]
+```
+
 ## 5.3. Quản trị thay đổi khi áp dụng hệ thống
 
 Trong thực tế, thách thức lớn nhất khi áp dụng hệ thống thông tin quản lý (MIS) thường nằm ở thay đổi thói quen quản lý hơn là công nghệ. Doanh nghiệp cần đào tạo người dùng theo vai trò, ban hành quy tắc cập nhật dữ liệu đúng thời điểm, và xây dựng cơ chế kiểm tra chất lượng dữ liệu định kỳ. Khi dữ liệu trở thành một tiêu chí đánh giá chất lượng vận hành, hệ thống sẽ phát huy giá trị tối đa.
@@ -347,6 +463,12 @@ Với phân quyền theo vai trò và phạm vi dữ liệu, cùng cơ chế nh�
 Ở cấp tổ/nhóm, hệ thống hỗ trợ quyết định giao việc và điều phối hiện diện. Ở cấp phòng ban, hệ thống hỗ trợ quyết định cân bằng tải, đào tạo và đánh giá hiệu suất. Ở cấp lãnh đạo, hệ thống hỗ trợ quyết định ngân sách nhân sự, kế hoạch tuyển dụng, ưu tiên dự án và chính sách quản trị.
 
 Nói cách khác, cùng một hạ tầng dữ liệu nhưng tạo ra nhiều lớp giá trị quyết định theo cấp quản lý, đúng bản chất của hệ thống hỗ trợ ra quyết định (DSS) trong hệ thống thông tin quản lý (MIS).
+
+| Cấp quản lý | Quyết định thường gặp | Dữ liệu sử dụng | Kết quả quản lý |
+|---|---|---|---|
+| Tổ/nhóm | Giao việc hằng ngày, xử lý vắng mặt | Lịch hiện diện, báo cáo công việc, chấm công | Duy trì tiến độ ngắn hạn |
+| Phòng ban | Cân bằng tải, đánh giá hiệu suất, kế hoạch đào tạo | Báo cáo tổng hợp theo nhân sự/phòng ban | Nâng hiệu suất trung hạn |
+| Ban lãnh đạo | Phân bổ ngân sách nhân sự, ưu tiên dự án, kế hoạch tuyển dụng | Chỉ số tổng hợp nhân sự - dự án - tài chính | Tối ưu mục tiêu chiến lược |
 
 ---
 
