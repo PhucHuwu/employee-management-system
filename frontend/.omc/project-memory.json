@@ -42,8 +42,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd /Users/n0x/WebStorm/htql/employee-management-system && npm run build 2>&1",
-    "testCommand": null,
+    "buildCommand": "npx tsc --noEmit 2>&1 | grep -E \"login|dashboard|app-sidebar|profile\" || echo \"No errors in modified files\"",
+    "testCommand": "cd /Users/n0x/WebStorm/htql/employee-management-system && npx jest --no-cache --passWithNoTests src/modules/timesheet-entry",
     "lintCommand": "npm run lint",
     "devCommand": "npm run dev",
     "scripts": {
@@ -165,9 +165,21 @@
       "type": "file"
     },
     {
+      "path": "app/(protected)/timesheet-entries/page.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1778131013327,
+      "type": "file"
+    },
+    {
       "path": "lib/breadcrumb-map.ts",
       "accessCount": 4,
       "lastAccessed": 1778129225766,
+      "type": "file"
+    },
+    {
+      "path": "lib/api/endpoints.ts",
+      "accessCount": 4,
+      "lastAccessed": 1778130861838,
       "type": "file"
     },
     {
@@ -177,21 +189,9 @@
       "type": "file"
     },
     {
-      "path": "lib/api/endpoints.ts",
-      "accessCount": 3,
-      "lastAccessed": 1778130177018,
-      "type": "file"
-    },
-    {
       "path": "app/(protected)/skills/page.tsx",
       "accessCount": 2,
       "lastAccessed": 1778128970941,
-      "type": "file"
-    },
-    {
-      "path": "app/(protected)/timesheet-entries/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1778130141820,
       "type": "file"
     },
     {
@@ -202,8 +202,8 @@
     },
     {
       "path": "lib/types.ts",
-      "accessCount": 1,
-      "lastAccessed": 1778128593253,
+      "accessCount": 2,
+      "lastAccessed": 1778130857415,
       "type": "file"
     },
     {
@@ -246,6 +246,24 @@
       "path": "app/(protected)/recruitment/page.tsx",
       "accessCount": 1,
       "lastAccessed": 1778130226718,
+      "type": "file"
+    },
+    {
+      "path": "components/ui/tabs.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778130853460,
+      "type": "file"
+    },
+    {
+      "path": "components/ui/select.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778130853976,
+      "type": "file"
+    },
+    {
+      "path": "components/ui/popover.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778130854039,
       "type": "file"
     }
   ],

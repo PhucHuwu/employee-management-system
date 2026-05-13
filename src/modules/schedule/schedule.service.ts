@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  FixedSchedule,
   Prisma,
   Role,
   ScheduleRequestStatus,
@@ -15,6 +16,7 @@ import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 import { AuditService } from '@/modules/audit/audit.service';
 import { AuthUser } from '@/modules/identity/auth-user.type';
 import { LeaveService } from '@/modules/leave/leave.service';
+import { CreateScheduleRequestDto } from './dto/create-schedule-request.dto';
 import { DailyDrilldownQueryDto } from './dto/daily-drilldown-query.dto';
 import { DailySummaryQueryDto } from './dto/daily-summary-query.dto';
 import { ScheduleRequestQueryDto } from './dto/schedule-request-query.dto';
@@ -40,6 +42,74 @@ export class ScheduleService {
     private readonly auditService: AuditService,
     private readonly leaveService: LeaveService,
   ) {}
+
+  async createRequest(
+    user: AuthUser,
+    dto: CreateScheduleRequestDto,
+  ): Promise<unknown> {
+    const employeeId = user.employeeId;
+    if (!employeeId) {
+      throw new ForbiddenException('Employee profile not linked');
+    }
+
+    const requestDate = new Date(dto.requestDate);
+
+    if (dto.requestType === ScheduleRequestType.CHANGE_FIXED_SCHEDULE && !dto.requestedSchedule) {
+      throw new BadRequestException('requestedSchedule is required for CHANGE_FIXED_SCHEDULE');
+    }
+
+    const existing = await this.prisma.scheduleRequest.findFirst({
+      where: {
+        employeeId,
+        requestDate,
+        requestType: dto.requestType,
+        status: { not: ScheduleRequestStatus.CANCELLED },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException('Schedule request already exists for this date and type');
+    }
+
+    const created = await this.prisma.scheduleRequest.create({
+      data: {
+        requestType: dto.requestType,
+        requestDate,
+        reason: dto.reason?.trim() ?? null,
+        requestedSchedule: dto.requestedSchedule ?? null,
+        employeeId,
+        status: ScheduleRequestStatus.PENDING,
+      },
+      include: {
+        employee: {
+          select: {
+            id: true,
+            fullName: true,
+            departmentId: true,
+            fixedSchedule: true,
+          },
+        },
+      },
+    });
+
+    await this.auditService.log({
+      actor: {
+        id: user.id,
+        role: user.role,
+      },
+      action: 'SCHEDULE_REQUEST_CREATED',
+      entityType: 'SCHEDULE_REQUEST',
+      entityId: created.id,
+      newData: {
+        requestType: created.requestType,
+        requestDate: created.requestDate.toISOString(),
+        reason: created.reason,
+        requestedSchedule: created.requestedSchedule,
+      },
+    });
+
+    return created;
+  }
 
   async getScheduleRequests(
     user: AuthUser,

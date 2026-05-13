@@ -10,6 +10,7 @@ import {
 import { CurrentUser } from '@/modules/identity/decorators/current-user.decorator';
 import { AuthUser } from '@/modules/identity/auth-user.type';
 import { Permissions } from '@/modules/identity/decorators/permissions.decorator';
+import { CreateScheduleRequestDto } from './dto/create-schedule-request.dto';
 import { DailyDrilldownQueryDto } from './dto/daily-drilldown-query.dto';
 import { DailySummaryQueryDto } from './dto/daily-summary-query.dto';
 import { RejectScheduleRequestDto } from './dto/reject-schedule-request.dto';
@@ -19,6 +20,15 @@ import { ScheduleService } from './schedule.service';
 @Controller()
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
+
+  @Post('schedule-requests')
+  @Permissions({ resource: 'schedule-request', action: 'create' })
+  createScheduleRequest(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: CreateScheduleRequestDto,
+  ): Promise<unknown> {
+    return this.scheduleService.createRequest(user, dto);
+  }
 
   @Get('schedule-requests')
   @Permissions({ resource: 'schedule-request', action: 'read' })

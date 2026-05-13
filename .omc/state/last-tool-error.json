@@ -1,7 +1,0 @@
-{
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/n0x/WebStorm/htql/employee-management-system/frontend/next.config.ts\"}",
-  "error": "File does not exist. Note: your current working directory is /Users/n0x/WebStorm/htql/employee-management-system. Did you mean next.config.mjs?",
-  "timestamp": "2026-05-07T05:05:16.357Z",
-  "retry_count": 1
-}

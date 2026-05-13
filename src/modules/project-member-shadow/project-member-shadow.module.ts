@@ -5,5 +5,6 @@ import { ProjectMemberShadowService } from './project-member-shadow.service';
 @Module({
   controllers: [ProjectMemberShadowController],
   providers: [ProjectMemberShadowService],
+  exports: [ProjectMemberShadowService],
 })
 export class ProjectMemberShadowModule {}

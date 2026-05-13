@@ -126,6 +126,45 @@ const permissionMatrix: PermissionSeed[] = [
   // manager-scope
   { resource: 'manager-scope', action: 'read', role: Role.ADMIN, ownership: 'any', allowed: true },
   { resource: 'manager-scope', action: 'update', role: Role.ADMIN, ownership: 'any', allowed: true },
+
+  // timesheet-entry
+  { resource: 'timesheet-entry', action: 'create', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'create', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'timesheet-entry', action: 'create', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'timesheet-entry', action: 'read', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'read', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'timesheet-entry', action: 'read', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'timesheet-entry', action: 'update', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'update', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'timesheet-entry', action: 'update', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'timesheet-entry', action: 'delete', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'delete', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'timesheet-entry', action: 'delete', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'timesheet-entry', action: 'submit', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'submit', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'timesheet-entry', action: 'submit', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'timesheet-entry', action: 'approve', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'approve', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'timesheet-entry', action: 'reject', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'timesheet-entry', action: 'reject', role: Role.MANAGER, ownership: 'scope', allowed: true },
+
+  // working-time-request
+  { resource: 'working-time-request', action: 'create', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'working-time-request', action: 'create', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'working-time-request', action: 'create', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'working-time-request', action: 'read', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'working-time-request', action: 'read', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'working-time-request', action: 'read', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'working-time-request', action: 'update', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'working-time-request', action: 'update', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'working-time-request', action: 'update', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'working-time-request', action: 'delete', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'working-time-request', action: 'delete', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'working-time-request', action: 'delete', role: Role.EMPLOYEE, ownership: 'own', allowed: true },
+  { resource: 'working-time-request', action: 'approve', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'working-time-request', action: 'approve', role: Role.MANAGER, ownership: 'scope', allowed: true },
+  { resource: 'working-time-request', action: 'reject', role: Role.ADMIN, ownership: 'any', allowed: true },
+  { resource: 'working-time-request', action: 'reject', role: Role.MANAGER, ownership: 'scope', allowed: true },
 ]
 
 export const seedPermissions = async (ctx: SeedContext): Promise<void> => {

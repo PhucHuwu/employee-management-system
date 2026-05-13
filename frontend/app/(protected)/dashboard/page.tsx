@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Users,
   Clock,
@@ -132,7 +133,15 @@ const PIE_COLORS = ['#0ea5e9', '#f59e0b', '#10b981']
 const MONTH_NAMES = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12']
 
 export default function DashboardPage() {
+  const router = useRouter()
   const { user } = useAuth()
+
+  useEffect(() => {
+    if (user?.role === 'Employee') {
+      router.replace('/profile')
+    }
+  }, [user, router])
+
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [monthlySummary, setMonthlySummary] = useState<MonthlyPoint[]>([])
   const [pendingRequests, setPendingRequests] = useState<Array<{ id: string; employeeName: string; requestType: string; requestDate: string }>>([])

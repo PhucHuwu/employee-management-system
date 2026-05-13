@@ -37,7 +37,7 @@
     "runtime": "Node.js 20.0.0"
   },
   "build": {
-    "buildCommand": "cd /Users/n0x/WebStorm/htql/employee-management-system && npm run build",
+    "buildCommand": "npx tsc --noEmit 2>&1 | grep -E \"^prisma/seed|^src/\" | head -30",
     "testCommand": "npx jest --testPathPattern=invoice --passWithNoTests --no-coverage 2>&1 | tail -20",
     "lintCommand": "npm run lint",
     "devCommand": "npm run start",
@@ -220,8 +220,8 @@
     },
     {
       "path": "src/modules/schedule/schedule.service.ts",
-      "accessCount": 22,
-      "lastAccessed": 1778088154528,
+      "accessCount": 27,
+      "lastAccessed": 1778134581657,
       "type": "file"
     },
     {
@@ -231,15 +231,33 @@
       "type": "file"
     },
     {
-      "path": "src/modules/project/services/project.service.ts",
-      "accessCount": 6,
-      "lastAccessed": 1778112435886,
+      "path": "src/modules/identity/auth-user.type.ts",
+      "accessCount": 7,
+      "lastAccessed": 1778134377907,
       "type": "file"
     },
     {
-      "path": "src/modules/identity/auth-user.type.ts",
+      "path": "src/modules/schedule/schedule.controller.ts",
+      "accessCount": 7,
+      "lastAccessed": 1778134602671,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 7,
+      "lastAccessed": 1778135446465,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/project/services/project.service.ts",
+      "accessCount": 7,
+      "lastAccessed": 1778135621358,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/project/project.projects.controller.ts",
       "accessCount": 6,
-      "lastAccessed": 1778112443088,
+      "lastAccessed": 1778135587211,
       "type": "file"
     },
     {
@@ -267,12 +285,6 @@
       "type": "file"
     },
     {
-      "path": "src/modules/project/project.projects.controller.ts",
-      "accessCount": 4,
-      "lastAccessed": 1778112429528,
-      "type": "file"
-    },
-    {
       "path": "src/modules/position/position.controller.ts",
       "accessCount": 4,
       "lastAccessed": 1778113970854,
@@ -282,12 +294,6 @@
       "path": "src/modules/department/department.controller.ts",
       "accessCount": 4,
       "lastAccessed": 1778113981059,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/schedule/schedule.controller.ts",
-      "accessCount": 3,
-      "lastAccessed": 1778087720733,
       "type": "file"
     },
     {
@@ -324,12 +330,6 @@
       "path": "src/modules/leave/dto/update-leave-balance.dto.ts",
       "accessCount": 3,
       "lastAccessed": 1778112419512,
-      "type": "file"
-    },
-    {
-      "path": "tsconfig.json",
-      "accessCount": 3,
-      "lastAccessed": 1778112443994,
       "type": "file"
     },
     {
@@ -400,8 +400,8 @@
     },
     {
       "path": "src/modules/schedule/dto/schedule-request-query.dto.ts",
-      "accessCount": 1,
-      "lastAccessed": 1778087721482,
+      "accessCount": 2,
+      "lastAccessed": 1778134518553,
       "type": "file"
     },
     {

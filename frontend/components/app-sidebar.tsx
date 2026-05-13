@@ -89,7 +89,7 @@ const allMenuItems: SidebarEntry[] = [
     title: 'Dashboard',
     url: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['Admin', 'Manager', 'Employee'],
+    roles: ['Admin', 'Manager'],
   },
   {
     title: 'Hồ sơ',

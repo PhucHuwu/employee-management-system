@@ -95,6 +95,10 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
+    if (user.role === Role.EMPLOYEE) {
+      return true;
+    }
+
     if (user.role !== Role.MANAGER) {
       throw new ForbiddenException('Role is not allowed for scoped resource');
     }

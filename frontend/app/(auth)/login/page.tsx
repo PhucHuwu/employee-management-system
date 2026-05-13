@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -36,9 +36,14 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const defaultRoute = useMemo(() => {
+    if (user?.role === 'Employee') return '/profile'
+    return '/dashboard'
+  }, [user])
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -50,16 +55,17 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.replace('/dashboard')
+      router.replace(defaultRoute)
     }
-  }, [authLoading, isAuthenticated, router])
+  }, [authLoading, isAuthenticated, router, defaultRoute])
 
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true)
     try {
       await login(data.usernameOrEmail, data.password)
       toast.success('Đăng nhập thành công')
-      router.push('/dashboard')
+      const route = user?.role === 'Employee' ? '/profile' : '/dashboard'
+      router.push(route)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Đăng nhập thất bại')
     } finally {
