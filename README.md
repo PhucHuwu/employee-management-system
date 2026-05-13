@@ -16,20 +16,22 @@ Full-stack employee management system with NestJS backend, Next.js frontend, Pos
 ## Run Locally
 
 ### 1) Start infrastructure
-From project root:
+From the `backend` directory:
 
 ```bash
+cd backend
 docker compose up -d postgres
 ```
 
 Optional (if you want S3-compatible document storage):
 
 ```bash
+cd backend
 docker compose up -d minio
 ```
 
 ### 2) Configure backend environment
-Create `.env` from `.env.example` at project root.
+Create `backend/.env` from `backend/.env.example`.
 
 Example values:
 
@@ -49,12 +51,14 @@ If port `5432` is already used on your machine, change `DATABASE_URL` accordingl
 ### 3) Install backend dependencies
 
 ```bash
+cd backend
 npm install
 ```
 
 ### 4) Prepare database
 
 ```bash
+cd backend
 npm run prisma:generate
 npx prisma db push --force-reset
 npm run db:seed
@@ -63,6 +67,7 @@ npm run db:seed
 ### 5) Start backend
 
 ```bash
+cd backend
 npm run start:dev
 ```
 
@@ -100,6 +105,7 @@ Frontend URL: `http://localhost:3001`
 - Business Manager: `manager.business@ems.local` / `manager123`
 
 ## Useful Commands
+Run these from the `backend` directory:
 - Regenerate Prisma client: `npm run prisma:generate`
 - Open Prisma Studio: `npm run prisma:studio`
 - Reseed database: `npm run db:seed`

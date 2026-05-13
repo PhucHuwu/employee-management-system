@@ -72,7 +72,7 @@ Phải chốt trong 1-2 ngày đầu để tránh rework:
 ## Sprint 0 (Tuần 1) — Foundation & Design Lock
 - Chốt 4 quyết định nghiệp vụ T-0.
 - Dựng project backend Node.js + TypeScript.
-- Thiết kế `prisma/schema.prisma` v1 + migration baseline bằng Prisma Migrate.
+- Thiết kế `backend/prisma/schema.prisma` v1 + migration baseline bằng Prisma Migrate.
 - Setup CI (lint + test + build) và môi trường local/dev.
 
 **Phân công**
@@ -157,7 +157,7 @@ Phải chốt trong 1-2 ngày đầu để tránh rework:
 Một user story được xem là hoàn thành khi:
 
 1. Code đã merge vào `develop`, pass CI.
-2. Có cập nhật `prisma/schema.prisma` và migration PostgreSQL hợp lệ qua Prisma (nếu tác động schema).
+2. Có cập nhật `backend/prisma/schema.prisma` và migration PostgreSQL hợp lệ qua Prisma (nếu tác động schema).
 3. Có test phù hợp (unit/integration/e2e theo mức độ).
 4. Endpoint có kiểm soát RBAC + data-scope.
 5. Có audit log cho action nhạy cảm.
@@ -174,7 +174,7 @@ Một user story được xem là hoàn thành khi:
 ## 10) Deliverables cuối kỳ
 
 - Source code backend Node.js + TypeScript theo module domain.
-- Bộ `prisma/schema.prisma` và migration PostgreSQL đầy đủ.
+- Bộ `backend/prisma/schema.prisma` và migration PostgreSQL đầy đủ.
 - OpenAPI docs cho toàn bộ endpoint.
 - Bộ test + báo cáo coverage trọng yếu.
 - UAT checklist và biên bản pass/fail theo từng FR.
